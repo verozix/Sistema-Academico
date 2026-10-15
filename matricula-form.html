@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Matrícula - Sistema Acadêmico</title>
+  <link
+    rel="stylesheet"
+    href="css/style.css">
+</head>
+<body>
+
+  <!-- Cabeçalho principal -->
+  <header>
+    <h1>Sistema de Gerenciamento Acadêmico</h1>
+    <p>Cadastro de novas matrículas</p>
+  </header>
+
+  <!-- Navegação principal -->
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="alunos.html">Alunos</a>
+    <a href="cursos.html">Cursos</a>
+    <a href="matriculas.html">Matrículas</a>
+    <a href="usuarios.html">Usuários</a>
+  </nav>
+
+  <main>
+    <section>
+      <h2>Cadastro de Matrícula</h2>
+      <p>Campos marcados com * são obrigatórios.</p>
+
+      <form action="#" method="post">
+
+      <fieldset>
+        <legend>Dados da Matrícula</legend>
+
+        <label for="aluno">Aluno *</label>
+        <select id="aluno" name="aluno" required>
+          <option value="">Selecione</option>
+          <option value="1">Ana Souza</option>
+          <option value="2">Bruno Lima</option>
+          <option value="3">Carla Mendes</option>
+        </select>
+
+        <label for="curso">Curso *</label>
+        <select id="curso" name="curso" required>
+          <option value="">Selecione</option>
+          <option value="cco">Ciência da Computação</option>
+          <option value="ads">Análise e Desenvolvimento de Sistemas</option>
+        </select>
+
+        <label for="periodo">Período letivo *</label>
+        <input
+          type="text"
+          id="periodo"
+          name="periodo"
+          placeholder="2026/2" required pattern="[0-9]{4}/[1-2]" title="Use o formato AAAA/S. Ex.: 2026/2">
+
+        <label for="data">Data da matrícula *</label>
+        <input
+          type="date"
+          id="data"
+          name="data" required>
+
+      </fieldset>
+
+      <fieldset>
+        <legend>Observações</legend>
+
+        <label for="observacao">Observação</label>
+        <textarea
+          id="observacao"
+          name="observacao"></textarea>
+      </fieldset>
+
+        <button type="submit">Salvar</button>
+        <button
+          type="reset"
+          class="botao-secundario">
+          Limpar
+        </button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Sistema Acadêmico</p>
+  </footer>
+
+</body>
+</html>

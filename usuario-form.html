@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Usuário - Sistema Acadêmico</title>
+  <link
+    rel="stylesheet"
+    href="css/style.css">
+</head>
+<body>
+
+  <!-- Cabeçalho principal -->
+  <header>
+    <h1>Sistema de Gerenciamento Acadêmico</h1>
+    <p>Cadastro de novos usuários</p>
+  </header>
+
+  <!-- Navegação principal -->
+  <nav>
+    <a href="index.html">Dashboard</a>
+    <a href="alunos.html">Alunos</a>
+    <a href="cursos.html">Cursos</a>
+    <a href="matriculas.html">Matrículas</a>
+    <a href="usuarios.html">Usuários</a>
+  </nav>
+
+  <main>
+    <section>
+      <h2>Cadastro de Usuário</h2>
+      <p>Campos marcados com * são obrigatórios.</p>
+
+      <form action="#" method="post">
+
+      <fieldset>
+        <legend>Dados de Acesso</legend>
+
+        <label for="nome">Nome *</label>
+        <input
+          type="text"
+          id="nome"
+          name="nome" required minlength="3" maxlength="60">
+
+        <label for="email">E-mail *</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="nome@exemplo.com" required>
+
+        <label for="senha">Senha (mínimo 8 caracteres) *</label>
+        <input
+          type="password"
+          id="senha"
+          name="senha" required minlength="8">
+
+      </fieldset>
+
+      <fieldset>
+        <legend>Permissões</legend>
+
+        <label for="perfil">Perfil *</label>
+        <select id="perfil" name="perfil" required>
+          <option value="">Selecione</option>
+          <option value="admin">Administrador</option>
+          <option value="secretaria">Secretaria</option>
+          <option value="professor">Professor</option>
+        </select>
+
+        <fieldset>
+          <legend>Situação</legend>
+        <input type="radio" id="situacao-ativo" name="situacao" value="ativo" checked>
+        <label class="opcao" for="situacao-ativo">Ativo</label>
+        <input type="radio" id="situacao-inativo" name="situacao" value="inativo">
+        <label class="opcao" for="situacao-inativo">Inativo</label>
+        </fieldset>
+      </fieldset>
+
+        <button type="submit">Salvar</button>
+        <button
+          type="reset"
+          class="botao-secundario">
+          Limpar
+        </button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Sistema Acadêmico</p>
+  </footer>
+
+</body>
+</html>
