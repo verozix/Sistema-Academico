@@ -1,4 +1,4 @@
-# Sistema de Gerenciamento Acadêmico - Aula 04 (CSS3)
+# Sistema de Gerenciamento Acadêmico - Aula 04 
 
 Atividade prática de **Programação Web I** - UNIVEST.
 Evolução do projeto das Aulas 02 (HTML semântico) e 03 (formulários), agora com **CSS externo**.
