@@ -10,17 +10,25 @@
 </head>
 <body>
 
-  <header>
-    <h1>Sistema de Gerenciamento Acadêmico</h1>
-    <p>Listagem de alunos cadastrados</p>
+  <!-- Cabeçalho principal -->
+  <header class="cabecalho">
+    <h1>
+      Sistema de Gerenciamento Acadêmico
+    </h1>
+    <span>
+      Área Acadêmica
+    </span>
   </header>
 
+  <!-- Navegação principal -->
   <nav>
-    <a href="index.html">Dashboard</a>
-    <a href="alunos.html">Alunos</a>
-    <a href="cursos.html">Cursos</a>
-    <a href="matriculas.html">Matrículas</a>
-    <a href="usuarios.html">Usuários</a>
+    <ul>
+      <li><a href="index.html">Dashboard</a></li>
+      <li><a href="alunos.html">Alunos</a></li>
+      <li><a href="cursos.html">Cursos</a></li>
+      <li><a href="matriculas.html">Matrículas</a></li>
+      <li><a href="usuarios.html">Usuários</a></li>
+    </ul>
   </nav>
 
   <main>
@@ -33,23 +41,25 @@
         Novo Aluno
       </a>
 
-      <article class="card">
-        <h3>Ana Souza</h3>
-        <p>Curso: Ciência da Computação</p>
-        <p>Situação: Ativo</p>
-      </article>
+      <div class="lista-cards">
+        <article class="card">
+          <h3>Ana Souza</h3>
+          <p>Curso: Ciência da Computação</p>
+          <p>Situação: Ativo</p>
+        </article>
 
-      <article class="card">
-        <h3>Bruno Lima</h3>
-        <p>Curso: Análise e Desenvolvimento de Sistemas</p>
-        <p>Situação: Ativo</p>
-      </article>
+        <article class="card">
+          <h3>Bruno Lima</h3>
+          <p>Curso: Análise e Desenvolvimento de Sistemas</p>
+          <p>Situação: Ativo</p>
+        </article>
 
-      <article class="card">
-        <h3>Carla Mendes</h3>
-        <p>Curso: Ciência da Computação</p>
-        <p>Situação: Inativo</p>
-      </article>
+        <article class="card">
+          <h3>Carla Mendes</h3>
+          <p>Curso: Ciência da Computação</p>
+          <p>Situação: Inativo</p>
+        </article>
+      </div>
     </section>
   </main>
 

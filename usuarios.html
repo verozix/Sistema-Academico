@@ -10,17 +10,25 @@
 </head>
 <body>
 
-  <header>
-    <h1>Sistema de Gerenciamento Acadêmico</h1>
-    <p>Listagem de usuários cadastrados</p>
+  <!-- Cabeçalho principal -->
+  <header class="cabecalho">
+    <h1>
+      Sistema de Gerenciamento Acadêmico
+    </h1>
+    <span>
+      Área Acadêmica
+    </span>
   </header>
 
+  <!-- Navegação principal -->
   <nav>
-    <a href="index.html">Dashboard</a>
-    <a href="alunos.html">Alunos</a>
-    <a href="cursos.html">Cursos</a>
-    <a href="matriculas.html">Matrículas</a>
-    <a href="usuarios.html">Usuários</a>
+    <ul>
+      <li><a href="index.html">Dashboard</a></li>
+      <li><a href="alunos.html">Alunos</a></li>
+      <li><a href="cursos.html">Cursos</a></li>
+      <li><a href="matriculas.html">Matrículas</a></li>
+      <li><a href="usuarios.html">Usuários</a></li>
+    </ul>
   </nav>
 
   <main>
@@ -33,17 +41,19 @@
         Novo Usuário
       </a>
 
-      <article class="card">
-        <h3>Josemar Silva</h3>
-        <p>E-mail: josemar@exemplo.com</p>
-        <p>Perfil: Administrador</p>
-      </article>
+      <div class="lista-cards">
+        <article class="card">
+          <h3>Josemar Silva</h3>
+          <p>E-mail: josemar@exemplo.com</p>
+          <p>Perfil: Administrador</p>
+        </article>
 
-      <article class="card">
-        <h3>Maria Oliveira</h3>
-        <p>E-mail: maria@exemplo.com</p>
-        <p>Perfil: Secretaria</p>
-      </article>
+        <article class="card">
+          <h3>Maria Oliveira</h3>
+          <p>E-mail: maria@exemplo.com</p>
+          <p>Perfil: Secretaria</p>
+        </article>
+      </div>
     </section>
   </main>
 
