@@ -1,7 +1,8 @@
 /* ==========================================================
    Sistema de Gerenciamento Acadêmico
    Arquivo: css/style.css
-   Disciplina: Programação Web I - Aula 04 (CSS3)
+   Disciplina: Programação Web I
+   Aula 04 (CSS3) + Aula 05 (Flexbox)
 
    Organização do arquivo:
    1. Configurações gerais
@@ -58,12 +59,19 @@ header {
   padding: 24px;
 }
 
-header h1 {
-  margin-top: 0;
+/* AULA 05 - FLEXBOX NO CABEÇALHO
+   .cabecalho é o Flex Container; h1 e span são os Flex Items.
+   justify-content: space-between -> título à esquerda e
+                                     informação à direita (extremidades)
+   align-items: center            -> alinhamento vertical centralizado */
+.cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-header p {
-  margin-bottom: 0;
+header h1 {
+  margin: 0;
 }
 
 nav {
@@ -71,11 +79,22 @@ nav {
   padding: 12px;
 }
 
+/* AULA 05 - FLEXBOX NO MENU
+   O ul vira Flex Container e os li viram Flex Items (lado a lado).
+   gap substitui o antigo "nav li { display: inline; margin-right: 16px; }"
+   (comportamento antigo removido). */
+nav ul {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 /* Seletor DESCENDENTE: atinge apenas os links (a) dentro de nav */
 nav a {
   color: #003366;
   text-decoration: none;
-  margin-right: 16px;
 }
 
 
@@ -89,11 +108,43 @@ main {
 
 /* Seletor de CLASSE: reutilizado no dashboard e nas listagens
    de alunos, cursos, matrículas e usuários. */
+/* AULA 05 - flex: 1 1 250px  (shorthand de três propriedades)
+     1     -> flex-grow:   o card pode crescer e ocupar o espaço livre
+     1     -> flex-shrink: o card pode encolher se faltar espaço
+     250px -> flex-basis:  tamanho inicial antes de crescer/encolher
+   O margin-bottom foi retirado: o espaçamento entre os cards agora
+   é feito pelo gap dos contêineres (.cards e .lista-cards). */
 .card {
+  flex: 1 1 250px;
   background-color: white;
   border: 1px solid #dddddd;
   padding: 20px;
-  margin-bottom: 16px;
+}
+
+/* Contêiner flexível do dashboard (index.html).
+   Flex Container: .cards | Flex Items: cada .card
+   flex-wrap: wrap -> quando não cabe, o card vai para a linha de baixo
+   gap: 16px       -> espaçamento entre os cards
+
+   EXPERIMENTOS (Etapas 10, 11 e 12) - testar alterando e recarregando:
+   - flex-grow: 0 no .card -> cards mantêm 250px e sobra espaço vazio;
+     flex-grow: 1 -> os cards dividem o espaço livre e preenchem a linha.
+   - flex-basis: 200px -> cabem mais cards por linha antes de quebrar;
+     flex-basis: 300px -> cabem menos cards por linha.
+   - flex-wrap: nowrap -> todos ficam na mesma linha e são espremidos
+     (podem estourar a largura); wrap -> quebram para a linha de baixo. */
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Contêiner flexível das listagens (alunos, cursos, matrículas e
+   usuários). Os registros continuam usando a MESMA classe .card. */
+.lista-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 /* Área de avisos (página inicial) */
@@ -202,6 +253,16 @@ button {
 .botao-secundario {
   background-color: white;
   color: #003366;
+}
+
+/* AULA 05 - Grupo de botões dos formulários.
+   Flex Container: .acoes | Flex Items: os botões Salvar e Limpar
+   justify-content: flex-end -> botões alinhados à direita
+   gap: 12px                 -> espaço entre os botões */
+.acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 /* Links de cadastro (Novo Aluno, Novo Curso...) com aparência de botão */
