@@ -1,0 +1,227 @@
+/* ==========================================================
+   Sistema de Gerenciamento Acadêmico
+   Arquivo: css/style.css
+   Disciplina: Programação Web I - Aula 04 (CSS3)
+
+   Organização do arquivo:
+   1. Configurações gerais
+   2. Tipografia
+   3. Cabeçalho e navegação
+   4. Conteúdo e cards
+   5. Formulários
+   6. Botões
+   7. Rodapé
+   ========================================================== */
+
+
+/* ==========================================================
+   1. CONFIGURAÇÕES GERAIS
+   ========================================================== */
+
+/* Seletor UNIVERSAL.
+   box-sizing: border-box -> a largura (width) passa a incluir
+   conteúdo + padding + border, evitando estouros em formulários. */
+* {
+  box-sizing: border-box;
+}
+
+/* HERANÇA: font-family e color definidos aqui são herdados por
+   todos os elementos dentro do body (títulos, parágrafos, links...).
+   margin: 0 remove a margem padrão de 8px aplicada pelo navegador. */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #222222;
+  background-color: #f5f5f5;
+}
+
+
+/* ==========================================================
+   2. TIPOGRAFIA
+   ========================================================== */
+
+/* AGRUPAMENTO de seletores: uma única regra para três elementos */
+h1,
+h2,
+h3 {
+  font-family: Arial, sans-serif;
+}
+
+
+/* ==========================================================
+   3. CABEÇALHO E NAVEGAÇÃO
+   ========================================================== */
+
+header {
+  background-color: #003366;
+  color: white;
+  padding: 24px;
+}
+
+header h1 {
+  margin-top: 0;
+}
+
+header p {
+  margin-bottom: 0;
+}
+
+nav {
+  background-color: #eeeeee;
+  padding: 12px;
+}
+
+/* Seletor DESCENDENTE: atinge apenas os links (a) dentro de nav */
+nav a {
+  color: #003366;
+  text-decoration: none;
+  margin-right: 16px;
+}
+
+
+/* ==========================================================
+   4. CONTEÚDO E CARDS
+   ========================================================== */
+
+main {
+  padding: 24px;
+}
+
+/* Seletor de CLASSE: reutilizado no dashboard e nas listagens
+   de alunos, cursos, matrículas e usuários. */
+.card {
+  background-color: white;
+  border: 1px solid #dddddd;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+/* Área de avisos (página inicial) */
+.aviso {
+  background-color: #fff8dc;
+  border: 1px solid #e5d59b;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+/* Seletor de ID (uso único) combinado com seletor descendente:
+   estiliza apenas o h2 dentro de #dashboard. */
+#dashboard h2 {
+  color: #003366;
+}
+
+/* ESPECIFICIDADE:
+   Um parágrafo dentro de <article class="card"> é alcançado pelas
+   duas regras abaixo.
+     article p  ->  2 elementos            (peso menor)
+     .card p    ->  1 classe + 1 elemento  (peso maior)
+   Prevalece ".card p" (#222222), pois a classe pesa mais que o
+   elemento. Se o article NÃO tiver a classe .card, vale #444444. */
+article p {
+  color: #444444;
+}
+
+.card p {
+  color: #222222;
+}
+
+
+/* ==========================================================
+   5. FORMULÁRIOS
+   ========================================================== */
+
+form {
+  background-color: white;
+  padding: 24px;
+  border: 1px solid #dddddd;
+}
+
+fieldset {
+  border: 1px solid #cccccc;
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+legend {
+  font-weight: bold;
+  color: #003366;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+/* AGRUPAMENTO de seletores: width, padding, margin e border */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 16px;
+  border: 1px solid #cccccc;
+}
+
+textarea {
+  min-height: 100px;
+}
+
+/* Radio e checkbox não devem ocupar 100% da largura.
+   Seletor de atributo (mais específico que "input"), por isso
+   sobrescreve a regra acima. */
+input[type="radio"],
+input[type="checkbox"] {
+  width: auto;
+  margin: 0 6px 0 0;
+}
+
+/* Rótulo de opção (radio/checkbox): ao lado do campo, sem negrito.
+   A classe (.opcao) é mais específica que "label" e vence a regra
+   "label" definida acima. */
+.opcao {
+  display: inline-block;
+  font-weight: normal;
+  margin-right: 16px;
+}
+
+
+/* ==========================================================
+   6. BOTÕES
+   ========================================================== */
+
+button {
+  padding: 10px 16px;
+  border: 1px solid #003366;
+  background-color: #003366;
+  color: white;
+}
+
+/* CASCATA: esta regra vem DEPOIS de "button" e, por ser classe,
+   também tem maior especificidade; troca as cores do botão Limpar. */
+.botao-secundario {
+  background-color: white;
+  color: #003366;
+}
+
+/* Links de cadastro (Novo Aluno, Novo Curso...) com aparência de botão */
+.link-acao {
+  display: inline-block;
+  background-color: #003366;
+  color: white;
+  padding: 10px 16px;
+  text-decoration: none;
+  margin-bottom: 16px;
+}
+
+
+/* ==========================================================
+   7. RODAPÉ
+   ========================================================== */
+
+footer {
+  background-color: #003366;
+  color: white;
+  padding: 16px;
+  text-align: center;
+}
