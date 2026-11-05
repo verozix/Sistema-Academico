@@ -2,13 +2,13 @@
    Sistema de Gerenciamento Acadêmico
    Arquivo: css/style.css
    Disciplina: Programação Web I
-   Aula 04 (CSS3) + Aula 05 (Flexbox)
+   Aula 04 (CSS3) + Aula 05 (Flexbox) + Atividade de CSS Grid
 
    Organização do arquivo:
    1. Configurações gerais
    2. Tipografia
    3. Cabeçalho e navegação
-   4. Conteúdo e cards
+   4. Conteúdo, cards e Grid
    5. Formulários
    6. Botões
    7. Rodapé
@@ -59,11 +59,12 @@ header {
   padding: 24px;
 }
 
-/* AULA 05 - FLEXBOX NO CABEÇALHO
+/* FLEXBOX NO CABEÇALHO (Aula 05)
    .cabecalho é o Flex Container; h1 e span são os Flex Items.
    justify-content: space-between -> título à esquerda e
                                      informação à direita (extremidades)
-   align-items: center            -> alinhamento vertical centralizado */
+   align-items: center            -> alinhamento vertical centralizado
+   Continua em Flexbox: são apenas dois itens em uma linha. */
 .cabecalho {
   display: flex;
   justify-content: space-between;
@@ -79,10 +80,16 @@ nav {
   padding: 12px;
 }
 
-/* AULA 05 - FLEXBOX NO MENU
+/* FLEXBOX NO MENU (Aula 05)
    O ul vira Flex Container e os li viram Flex Items (lado a lado).
    gap substitui o antigo "nav li { display: inline; margin-right: 16px; }"
-   (comportamento antigo removido). */
+   (comportamento antigo removido).
+
+   ATIVIDADE 13 - O menu CONTINUA em Flexbox (não foi trocado por Grid):
+   é um layout UNIDIMENSIONAL, apenas uma linha de itens. O Flexbox
+   distribui os itens em um único eixo e se adapta ao tamanho do texto
+   de cada link. Grid, que organiza linhas E colunas, seria
+   desnecessário aqui. */
 nav ul {
   display: flex;
   gap: 16px;
@@ -99,51 +106,87 @@ nav a {
 
 
 /* ==========================================================
-   4. CONTEÚDO E CARDS
+   4. CONTEÚDO, CARDS E GRID
    ========================================================== */
 
 main {
   padding: 24px;
 }
 
-/* Seletor de CLASSE: reutilizado no dashboard e nas listagens
-   de alunos, cursos, matrículas e usuários. */
-/* AULA 05 - flex: 1 1 250px  (shorthand de três propriedades)
-     1     -> flex-grow:   o card pode crescer e ocupar o espaço livre
-     1     -> flex-shrink: o card pode encolher se faltar espaço
-     250px -> flex-basis:  tamanho inicial antes de crescer/encolher
-   O margin-bottom foi retirado: o espaçamento entre os cards agora
-   é feito pelo gap dos contêineres (.cards e .lista-cards). */
+/* O .card é reutilizado em todas as páginas (dashboard e listagens).
+   Na Aula 05 ele tinha "flex: 1 1 250px"; agora ele é Grid Item e a
+   largura é definida pelas colunas do contêiner, por isso o "flex" foi
+   removido (não tem efeito fora de um Flex Container). O espaçamento
+   entre cards é feito pelo gap do contêiner. */
 .card {
-  flex: 1 1 250px;
   background-color: white;
   border: 1px solid #dddddd;
   padding: 20px;
 }
 
-/* Contêiner flexível do dashboard (index.html).
-   Flex Container: .cards | Flex Items: cada .card
-   flex-wrap: wrap -> quando não cabe, o card vai para a linha de baixo
-   gap: 16px       -> espaçamento entre os cards
+/* ----------------------------------------------------------
+   CSS GRID - DASHBOARD (index.html)
 
-   EXPERIMENTOS (Etapas 10, 11 e 12) - testar alterando e recarregando:
-   - flex-grow: 0 no .card -> cards mantêm 250px e sobra espaço vazio;
-     flex-grow: 1 -> os cards dividem o espaço livre e preenchem a linha.
-   - flex-basis: 200px -> cabem mais cards por linha antes de quebrar;
-     flex-basis: 300px -> cabem menos cards por linha.
-   - flex-wrap: nowrap -> todos ficam na mesma linha e são espremidos
-     (podem estourar a largura); wrap -> quebram para a linha de baixo. */
-.cards {
-  display: flex;
-  flex-wrap: wrap;
+   ATIVIDADE 1 - Identificação:
+   - Grid Container: .dashboard-grid (display: grid)
+   - Grid Items:     os 4 cards (Alunos, Cursos, Matrículas, Usuários)
+   - Colunas:        4 colunas iguais
+
+   ATIVIDADE 3 - repeat(4, 1fr):
+   - repeat(4, 1fr) repete a definição "1fr" quatro vezes
+     (equivale a escrever: 1fr 1fr 1fr 1fr).
+   - 1fr = uma fração do espaço livre do contêiner (largura total
+     menos os gaps).
+   - Os cards têm a mesma largura porque todas as colunas valem 1fr,
+     ou seja, recebem frações iguais do espaço.
+
+   ATIVIDADE 4 - Testes de colunas (alterar e recarregar a página):
+   - repeat(2, 1fr) -> 2 colunas: cards em 2 linhas, mais largos.
+   - repeat(4, 1fr) -> 4 colunas: cards lado a lado, mais estreitos.
+
+   ATIVIDADE 5 - Testes de proporção (temporário):
+   - 2fr 1fr -> a 1ª coluna recebe o DOBRO da largura da 2ª (2/3 e 1/3).
+   - 1fr 1fr -> as duas colunas têm larguras iguais (1/2 e 1/2).
+
+   ATIVIDADE 6 - gap: 16px e depois 32px.
+   Altera o ESPAÇO ENTRE os cards (vertical e horizontal), sem mudar
+   o padding interno dos cards.
+
+   ATIVIDADE 7 - Testes (temporário):
+   - row-gap: 24px    -> espaço vertical entre as linhas
+   - column-gap: 12px -> espaço horizontal entre as colunas
+   (gap é o atalho para row-gap + column-gap.)
+   ---------------------------------------------------------- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 
-/* Contêiner flexível das listagens (alunos, cursos, matrículas e
-   usuários). Os registros continuam usando a MESMA classe .card. */
-.lista-cards {
-  display: flex;
-  flex-wrap: wrap;
+/* ATIVIDADE 8 - Card em destaque (aplicado ao card Alunos):
+   span 2 = "ocupe 2 colunas" a partir da posição em que o card
+   for colocado automaticamente.
+
+   ATIVIDADE 9 - Teste (temporário): grid-column: 1 / 3;
+   - span 2 é RELATIVO: conta duas colunas a partir de onde o item cai.
+   - 1 / 3 usa LINHAS DE GRADE: o item começa na linha 1 e termina na
+     linha 3 (ocupa as colunas 1 e 2). É uma posição ABSOLUTA.
+   Com 4 colunas existem 5 linhas de grade (1 a 5). No card Alunos, que
+   é o primeiro, o resultado visual é o mesmo; em outro card, "1 / 3"
+   forçaria o início na coluna 1 e poderia deixar espaços vazios. */
+.card-destaque {
+  grid-column: span 2;
+}
+
+/* ----------------------------------------------------------
+   CSS GRID - LISTAGENS (ATIVIDADES 10 e 11)
+   Mesma classe reutilizada em cursos, alunos, matrículas e usuários.
+   - Grid Container: .lista-grid | Grid Items: os .card
+   - 3 colunas iguais com 16px de espaço entre os cards.
+   ---------------------------------------------------------- */
+.lista-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 
@@ -255,10 +298,15 @@ button {
   color: #003366;
 }
 
-/* AULA 05 - Grupo de botões dos formulários.
+/* FLEXBOX NOS BOTÕES (Aula 05)
    Flex Container: .acoes | Flex Items: os botões Salvar e Limpar
    justify-content: flex-end -> botões alinhados à direita
-   gap: 12px                 -> espaço entre os botões */
+   gap: 12px                 -> espaço entre os botões
+
+   ATIVIDADE 14 - A classe .acoes CONTINUA em Flexbox. A área é
+   UNIDIMENSIONAL: os botões ficam em uma única linha (eixo
+   horizontal), alinhados à direita. Não há linhas e colunas para
+   organizar, então Grid não é necessário. */
 .acoes {
   display: flex;
   justify-content: flex-end;
