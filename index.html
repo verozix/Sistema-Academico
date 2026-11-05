@@ -40,8 +40,13 @@
     <section id="dashboard">
       <h2>Dashboard</h2>
 
-      <div class="cards">
-        <article class="card">
+      <!-- ATIVIDADE 1 - CSS Grid no Dashboard
+           Grid Container: esta div.dashboard-grid
+           Grid Items: os 4 articles .card (Alunos, Cursos, Matrículas, Usuários)
+           Colunas: 4 (repeat(4, 1fr), definido no css/style.css)
+           O card Alunos usa .card-destaque e ocupa 2 colunas (span 2) -->
+      <div class="dashboard-grid">
+        <article class="card card-destaque">
           <h3>Alunos</h3>
           <p>245</p>
         </article>
@@ -67,6 +72,10 @@
   <footer>
     <p>&copy; 2026 Sistema Acadêmico</p>
   </footer>
+
+  <!-- JavaScript: a ordem deve ser preservada (dados antes da lógica) -->
+  <script src="js/dados.js"></script>
+  <script src="js/app.js"></script>
 
 </body>
 </html>
