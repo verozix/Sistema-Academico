@@ -1,16 +1,18 @@
 // ============================================================
-// app.js - LÓGICA do Sistema de Gerenciamento Acadêmico
-// Atividade Prática - Aula 09 (JavaScript ES6+)
+// app.js - LÓGICA e INTERFACE do Sistema de Gerenciamento Acadêmico
+// Atividade Prática - Aula 10 (JavaScript + DOM + eventos)
 //
-// Responsabilidade deste arquivo: a LÓGICA (variáveis, condições,
-// laços, funções e operações sobre arrays e objetos).
-// Os DADOS (alunos, cursosCadastrados, matriculas e usuarios)
-// ficam no dados.js, que é carregado antes deste arquivo.
+// Os DADOS ficam no dados.js (alunos, cursosCadastrados, matriculas
+// e usuarios), carregado antes deste arquivo. Aqui ficam as funções
+// que leem esses dados e atualizam a página (DOM).
 //
-// Os resultados são observados no Console do navegador (F12).
-// Cada exercício está dentro de um bloco { } para que as variáveis
-// de teste (nome, aluno, cursos...) não entrem em conflito entre si.
+// Este mesmo arquivo é carregado em TODAS as páginas. Como cada página
+// tem elementos diferentes, as funções verificam se o elemento existe
+// antes de usá-lo: querySelector() devolve null quando não encontra
+// (veja o diagnóstico do exercício 78 mais abaixo).
+//
 // Os números entre parênteses indicam o exercício do enunciado.
+// O código da Aula 09 foi preservado em js/exercicios-aula09.js.
 // ============================================================
 
 
@@ -18,612 +20,575 @@
 // CONFIGURAÇÃO INICIAL
 // ------------------------------------------------------------
 
-// Função auxiliar apenas para separar as saídas no console
-function secao(texto) {
-  console.log(`\n--- ${texto} ---`);
-}
+// (3) Confirmar o carregamento do JavaScript
+console.log(
+  "Aula 10 - DOM iniciado."
+);
 
-// (4) Testar o carregamento
-console.log("Sistema Acadêmico iniciado.");
+// Elementos usados em eventos. Em páginas que não os possuem, o valor é null.
+// (38) botão de atualização, (43) formulário, (55) busca, (60) filtro
+const botaoAtualizar = document.querySelector("#btn-atualizar");
+const formularioAluno = document.querySelector("#form-aluno");
+const campoBusca = document.querySelector("#busca");
+const filtroStatus = document.querySelector("#filtro-status");
 
-// (5) Constantes básicas
-secao("Exercício 5 - Constantes");
-const nomeSistema = "Sistema de Gerenciamento Acadêmico";
-const anoLetivo = 2026;
-console.log(nomeSistema);
-console.log(anoLetivo);
+// Guarda o id do aluno que está na área de detalhes (ou null)
+let alunoEmDetalhe = null;
 
-// (6) Variável com let
-secao("Exercício 6 - let");
-let quantidadeAlunos = 245;
-console.log("Antes:", quantidadeAlunos);
-quantidadeAlunos = 246;
-console.log("Depois:", quantidadeAlunos);
 
-// (7) Tipos de dados
-secao("Exercício 7 - Tipos de dados");
-{
-  const texto = "Ana Souza";
-  const numero = 245;
-  const booleano = true;
-  const nulo = null;
-  let indefinido;
+// ------------------------------------------------------------
+// FUNÇÕES AUXILIARES (reutilizadas em várias partes)
+// ------------------------------------------------------------
 
-  console.log("string:", typeof texto);
-  console.log("number:", typeof numero);
-  console.log("boolean:", typeof booleano);
-  console.log("null:", typeof nulo); // "object" é uma particularidade histórica do JavaScript
-  console.log("undefined:", typeof indefinido);
-}
+// Altera o texto de um elemento, se ele existir na página.
+// (a versão do enunciado, com .querySelector().textContent direto, gera
+// erro nas páginas que não têm o elemento - ver exercício 78)
+function definirTexto(seletor, valor) {
+  const elemento = document.querySelector(seletor);
 
-// (8) Operadores e (9) Regra de aprovação
-secao("Exercícios 8 e 9 - Média e aprovação");
-{
-  const nota1 = 8;
-  const nota2 = 7;
-  const media = (nota1 + nota2) / 2;
-  console.log("Média:", media);
-
-  if (media >= 7) {
-    console.log("Aprovado");
-  } else if (media >= 5) {
-    console.log("Recuperação");
-  } else {
-    console.log("Reprovado");
+  if (elemento === null) {
+    return;
   }
+
+  elemento.textContent = valor;
 }
 
-// Testes adicionais da regra de aprovação (cobre os três caminhos)
-function classificarMedia(media) {
-  if (media >= 7) {
-    return "Aprovado";
-  } else if (media >= 5) {
-    return "Recuperação";
-  } else {
-    return "Reprovado";
+// Cria um elemento com texto e, opcionalmente, uma classe CSS.
+// (77) textContent + createElement: seguro para textos digitados pelo usuário.
+function criarElementoComTexto(tag, texto, classe) {
+  const elemento = document.createElement(tag);
+  elemento.textContent = texto;
+
+  if (classe) {
+    elemento.classList.add(classe);
   }
+
+  return elemento;
 }
-console.log("Média 7.5 ->", classificarMedia(7.5));
-console.log("Média 6 ->", classificarMedia(6));
-console.log("Média 3.5 ->", classificarMedia(3.5));
 
-// (10) Regra de aluno ativo
-secao("Exercício 10 - Aluno ativo");
-{
-  const statusAluno = "ativo";
-
-  if (statusAluno === "ativo") {
-    console.log("Aluno ativo.");
-  } else {
-    console.log("Aluno inativo.");
+// (69) Escolhe a classe CSS conforme o status
+function classeDoStatus(status) {
+  if (status === "ativo" || status === "ativa") {
+    return "status-ativo";
   }
+  return "status-inativo";
 }
 
-// (11) Operadores lógicos
-secao("Exercício 11 - Operadores lógicos");
-{
-  const alunoAtivo = true;
-  const possuiMatricula = true;
-
-  if (alunoAtivo && possuiMatricula) {
-    console.log("O aluno pode acessar a área acadêmica.");
-  } else {
-    console.log("O aluno NÃO pode acessar a área acadêmica.");
-  }
-}
-
-// (12) switch
-secao("Exercício 12 - switch");
-{
-  const statusMatricula = "trancada";
-
-  switch (statusMatricula) {
-    case "ativa":
-      console.log("Matrícula ativa: o aluno pode frequentar as aulas.");
-      break;
-    case "trancada":
-      console.log("Matrícula trancada: o aluno está temporariamente afastado.");
-      break;
-    case "cancelada":
-      console.log("Matrícula cancelada: o vínculo foi encerrado.");
-      break;
-    case "concluida":
-      console.log("Matrícula concluída: o curso foi finalizado.");
-      break;
-    default:
-      console.log("Status de matrícula desconhecido.");
-  }
-}
-
-// (13) Laço for
-secao("Exercício 13 - for (1 a 10)");
-for (let i = 1; i <= 10; i++) {
-  console.log(i);
-}
-
-// (14) Laço while
-secao("Exercício 14 - while (1 a 5)");
-{
-  let contador = 1;
-  while (contador <= 5) {
-    console.log(contador);
-    contador++;
-  }
-}
-
-// (15) Função simples
-function exibirNomeSistema() {
-  console.log("Sistema de Gerenciamento Acadêmico");
-}
-secao("Exercício 15 - Função simples");
-exibirNomeSistema();
-
-// (16) Função com parâmetro
-function exibirAluno(nome) {
-  console.log(nome);
-}
-secao("Exercício 16 - Função com parâmetro");
-exibirAluno("Ana Souza");
-exibirAluno("Carlos Silva");
-exibirAluno("Mariany Santos");
-
-// (17) Função com retorno
-function calcularMedia(nota1, nota2) {
-  return (nota1 + nota2) / 2;
-}
-secao("Exercício 17 - Função com retorno");
-console.log(calcularMedia(8, 7));
-console.log(calcularMedia(10, 10));
-console.log(calcularMedia(4, 5));
-
-// (18) Arrow function
-secao("Exercício 18 - Arrow function");
-{
-  const calcularMedia = (nota1, nota2) => {
-    return (nota1 + nota2) / 2;
-  };
-  console.log(calcularMedia(8, 7));
-  console.log(calcularMedia(6, 9));
-}
-
-// (19) Versão compacta
-// Comparação: a versão explícita usa chaves e "return" (mostra cada passo);
-// a compacta omite chaves e "return" e devolve o valor da expressão.
-// O resultado é o mesmo.
-secao("Exercício 19 - Arrow function compacta");
-{
-  const calcularMedia =
-    (nota1, nota2) => (nota1 + nota2) / 2;
-  console.log(calcularMedia(8, 7));
-  console.log(calcularMedia(6, 9));
+// Gera o próximo id. O enunciado usa alunos.length + 1 (exercício 48),
+// mas depois de remover um aluno isso poderia repetir um id existente.
+// Por isso usamos o maior id atual + 1.
+function gerarProximoId(lista) {
+  const ids = lista.map((item) => item.id);
+  return Math.max(0, ...ids) + 1;
 }
 
 
 // ------------------------------------------------------------
-// OPERAÇÕES COM ALUNOS
+// FUNÇÕES DA AULA 09 (reaproveitadas com os mesmos arrays)
 // ------------------------------------------------------------
 
-// (27) a (29), (44), (45) e (48) - Objeto aluno
-secao("Exercícios 27 a 29 - Objeto aluno");
-{
-  // (27) Criar objeto
-  const aluno = {
-    id: 1,
-    nome: "Ana Souza",
-    email: "ana@email.com",
-    curso: "ADS",
-    status: "ativo"
-  };
-
-  // (28) Acessar propriedades
-  console.log(aluno.nome);
-  console.log(aluno.email);
-  console.log(aluno.curso);
-  console.log(aluno.status);
-
-  // (29) Alterar status
-  // const impede reatribuir a variável "aluno", mas permite alterar
-  // as propriedades do objeto.
-  aluno.status = "trancado";
-  console.log(aluno);
-
-  // (44) Template literal com objeto
-  secao("Exercício 44 - Template literal com objeto");
-  console.log(
-    `Aluno: ${aluno.nome} - Status: ${aluno.status}`
-  );
-
-  // (45) Desestruturação de objeto
-  secao("Exercício 45 - Desestruturação de objeto");
-  const {
-    nome,
-    curso,
-    status
-  } = aluno;
-  console.log(nome);
-  console.log(curso);
-  console.log(status);
-
-  // (48) Spread em objeto: cria uma cópia alterando só o status
-  secao("Exercício 48 - Spread em objeto");
-  const alunoAtualizado = {
-    ...aluno,
-    status: "concluido"
-  };
-  console.log("aluno:", aluno);
-  console.log("alunoAtualizado:", alunoAtualizado);
-}
-
-// (43) Template literals
-secao("Exercício 43 - Template literal");
-{
-  const nome = "Ana Souza";
-  const curso = "ADS";
-  console.log(`Aluno: ${nome} - Curso: ${curso}`);
-}
-
-// (31) Percorrer os alunos
-secao("Exercício 31 - Percorrer alunos");
-for (const aluno of alunos) {
-  console.log(aluno.nome);
-}
-
-// (32) Exibir apenas alunos ativos (for...of + if)
-secao("Exercício 32 - Alunos ativos (for...of + if)");
-for (const aluno of alunos) {
-  if (aluno.status === "ativo") {
-    console.log(aluno.nome);
-  }
-}
-
-// (33) filter()
-secao("Exercício 33 - filter()");
-{
-  const alunosAtivos = alunos.filter((aluno) => {
-    return aluno.status === "ativo";
-  });
-  console.log(alunosAtivos);
-}
-
-// (34) map()
-secao("Exercício 34 - map()");
-{
-  const nomesAlunos = alunos.map((aluno) => {
-    return aluno.nome;
-  });
-  console.log(nomesAlunos);
-}
-
-// (35) find()
-secao("Exercício 35 - find()");
-{
-  const carlos = alunos.find((aluno) => {
-    return aluno.nome === "Carlos Silva";
-  });
-  console.log(carlos);
-}
-
-// (53) Buscar aluno por ID
-function buscarAlunoPorId(listaAlunos, id) {
-  return listaAlunos.find((aluno) => aluno.id === id);
-}
-
-// (54) Filtrar alunos por status
-function filtrarAlunosPorStatus(listaAlunos, status) {
-  return listaAlunos.filter((aluno) => aluno.status === status);
-}
-
-// (55) Listar nomes dos alunos
-function obterNomesAlunos(listaAlunos) {
-  return listaAlunos.map((aluno) => aluno.nome);
-}
-
-secao("Exercícios 53 a 55 - Funções de alunos");
-console.log("buscarAlunoPorId(alunos, 2):", buscarAlunoPorId(alunos, 2));
-console.log("buscarAlunoPorId(alunos, 99):", buscarAlunoPorId(alunos, 99));
-console.log("filtrarAlunosPorStatus(alunos, \"ativo\"):", filtrarAlunosPorStatus(alunos, "ativo"));
-console.log("filtrarAlunosPorStatus(alunos, \"inativo\"):", filtrarAlunosPorStatus(alunos, "inativo"));
-console.log("obterNomesAlunos(alunos):", obterNomesAlunos(alunos));
-
-
-// ------------------------------------------------------------
-// OPERAÇÕES COM CURSOS
-// ------------------------------------------------------------
-
-// (20) a (26) - Array de cursos
-secao("Exercícios 20 a 26 - Array de cursos");
-{
-  // (20) Criar array
-  const cursos = [
-    "ADS",
-    "Ciência da Computação",
-    "Engenharia de Software"
-  ];
-
-  // (21) Acessar elementos (o índice começa em 0)
-  console.log(cursos[0]);
-  console.log(cursos[1]);
-  console.log(cursos[2]);
-
-  // (22) Quantidade
-  console.log("Quantidade:", cursos.length);
-
-  // (23) Adicionar curso
-  cursos.push("Sistemas de Informação");
-  console.log("Após push:", cursos);
-
-  // (24) Remover o último curso
-  cursos.pop();
-  console.log("Após pop:", cursos);
-
-  // (25) for...of
-  console.log("for...of:");
-  for (const curso of cursos) {
-    console.log(curso);
-  }
-
-  // (26) forEach()
-  console.log("forEach:");
-  cursos.forEach((curso) => {
-    console.log(curso);
-  });
-}
-
-// (46) Desestruturação de array e (47) Spread em array
-secao("Exercícios 46 e 47 - Desestruturação e spread de array");
-{
-  const cursos = [
-    "ADS",
-    "CC",
-    "ES"
-  ];
-
-  // (46)
-  const [
-    primeiroCurso,
-    segundoCurso
-  ] = cursos;
-  console.log(primeiroCurso);
-  console.log(segundoCurso);
-
-  // (47) O array original é preservado
-  const cursosAtualizados = [
-    ...cursos,
-    "Sistemas de Informação"
-  ];
-  console.log("Original:", cursos);
-  console.log("Atualizado:", cursosAtualizados);
-}
-
-// (50) Filtrar cursos ativos
-secao("Exercício 50 - Cursos ativos");
-{
-  const cursosAtivos = cursosCadastrados.filter((curso) => {
-    return curso.ativo === true;
-  });
-  console.log(cursosAtivos);
-}
-
-// (51) Obter apenas os nomes dos cursos
-secao("Exercício 51 - Nomes dos cursos");
-{
-  const nomesCursos = cursosCadastrados.map((curso) => {
-    return curso.nome;
-  });
-  console.log(nomesCursos);
-}
-
-// (52) Buscar curso por sigla
-function buscarCursoPorSigla(listaCursos, sigla) {
-  return listaCursos.find((curso) => curso.sigla === sigla);
-}
-secao("Exercício 52 - Buscar curso por sigla");
-console.log("buscarCursoPorSigla(cursosCadastrados, \"CC\"):", buscarCursoPorSigla(cursosCadastrados, "CC"));
-console.log("buscarCursoPorSigla(cursosCadastrados, \"XYZ\"):", buscarCursoPorSigla(cursosCadastrados, "XYZ"));
-
-
-// ------------------------------------------------------------
-// OPERAÇÕES COM MATRÍCULAS
-// ------------------------------------------------------------
-
-// (37) Contar matrículas ativas com let + for...of + if
-secao("Exercício 37 - Contar matrículas ativas (for...of)");
-{
-  let totalAtivas = 0;
-  for (const matricula of matriculas) {
-    if (matricula.status === "ativa") {
-      totalAtivas++;
-    }
-  }
-  console.log("Matrículas ativas:", totalAtivas);
-}
-
-// (38) Contar com filter() + length
-secao("Exercício 38 - Contar matrículas ativas (filter)");
-{
-  const matriculasAtivas = matriculas.filter((matricula) => {
-    return matricula.status === "ativa";
-  });
-  console.log("Matrículas ativas:", matriculasAtivas.length);
-}
-
-// (39) Função para contagem
 function contarMatriculasAtivas(listaMatriculas) {
   const ativas = listaMatriculas.filter((matricula) => {
     return matricula.status === "ativa";
   });
   return ativas.length;
 }
-secao("Exercício 39 - Função contarMatriculasAtivas");
-console.log(contarMatriculasAtivas(matriculas));
-console.log(contarMatriculasAtivas([]));
 
-
-// ------------------------------------------------------------
-// OPERAÇÕES COM USUÁRIOS
-// ------------------------------------------------------------
-
-// (41) Filtrar usuários ativos
-secao("Exercício 41 - Usuários ativos");
-{
-  const usuariosAtivos = usuarios.filter((usuario) => {
-    return usuario.status === "ativo";
-  });
-  console.log(usuariosAtivos);
+function filtrarAlunosPorStatus(listaAlunos, status) {
+  return listaAlunos.filter((aluno) => aluno.status === status);
 }
 
-// (42) Buscar administrador
-secao("Exercício 42 - Buscar administrador");
-{
-  const administrador = usuarios.find((usuario) => {
-    return usuario.perfil === "administrador";
-  });
-  console.log(administrador);
+function buscarAlunoPorId(listaAlunos, id) {
+  return listaAlunos.find((aluno) => aluno.id === id);
 }
 
-
-// ------------------------------------------------------------
-// DIAGNÓSTICOS E COMPARAÇÕES (exercícios 59 a 64)
-// ------------------------------------------------------------
-
-// (59) Versão explícita x versão compacta
-// Duas operações: filtrar alunos ativos e obter nomes dos cursos.
-secao("Exercício 59 - Versão explícita x compacta");
-{
-  // Operação 1: filtrar alunos ativos
-  const ativosExplicita = alunos.filter((aluno) => {
-    return aluno.status === "ativo";
-  });
-  const ativosCompacta = alunos.filter((aluno) => aluno.status === "ativo");
-
-  // Operação 2: obter os nomes dos cursos
-  const nomesExplicita = cursosCadastrados.map((curso) => {
-    return curso.nome;
-  });
-  const nomesCompacta = cursosCadastrados.map((curso) => curso.nome);
-
-  console.log("Alunos ativos (explícita):", ativosExplicita.length);
-  console.log("Alunos ativos (compacta):", ativosCompacta.length);
-  console.log("Nomes dos cursos (explícita):", nomesExplicita);
-  console.log("Nomes dos cursos (compacta):", nomesCompacta);
-
-  // Para a aprendizagem inicial, a versão EXPLÍCITA é mais adequada: as
-  // chaves e o "return" deixam claro o que a função recebe e devolve.
-  // A versão compacta é mais curta e fica natural depois que o conceito
-  // de retorno já está dominado.
+function obterNomesAlunos(listaAlunos) {
+  return listaAlunos.map((aluno) => aluno.nome);
 }
 
-// (60) Diagnosticar erro com const
-secao("Exercício 60 - Reatribuir const");
-{
-  try {
-    const nome = "Ana";
-    nome = "Carlos"; // ERRO: const não pode ser reatribuída
-  } catch (erro) {
-    console.log("Erro capturado:", erro.message);
-  }
-
-  // Correção: usar let quando o valor precisa mudar
-  let nome = "Ana";
-  nome = "Carlos";
-  console.log("Corrigido com let:", nome);
+function buscarCursoPorSigla(listaCursos, sigla) {
+  return listaCursos.find((curso) => curso.sigla === sigla);
 }
 
-// (61) Diagnosticar igualdade
-secao("Exercício 61 - Igualdade estrita");
-{
-  const quantidade = 10;
-  console.log(quantidade === "10"); // false: number é diferente de string
-  // Para comparação: o operador == converteria os tipos e daria true,
-  // por isso o === é preferido.
-  console.log(quantidade == "10");
-}
-
-// (62) Diagnosticar índice
-secao("Exercício 62 - Índice inexistente");
-{
-  const alunos = [
-    "Ana",
-    "Carlos"
-  ];
-  console.log(alunos[2]); // undefined: os índices existentes são 0 e 1
-}
-
-// (63) Diagnosticar find() sem resultado
-secao("Exercício 63 - find() sem resultado");
-{
-  const naoEncontrado = alunos.find((aluno) => aluno.nome === "Pessoa Inexistente");
-  console.log(naoEncontrado); // undefined
-}
-
-// (64) Diagnosticar filter() sem resultado
-secao("Exercício 64 - filter() sem resultado");
-{
-  const nenhum = alunos.filter((aluno) => aluno.status === "formado");
-  console.log(nenhum); // [] (array vazio)
-  console.log(nenhum.length); // 0
-}
-
-
-// ------------------------------------------------------------
-// RESUMO DO DASHBOARD
-// ------------------------------------------------------------
-
-// (58) Função genérica de contagem
 function contarRegistros(lista) {
   return lista.length;
 }
 
-// (56) Quantidade de registros
-secao("Exercício 56 - Resumo do dashboard");
-console.log(`Alunos: ${alunos.length}`);
-console.log(`Cursos: ${cursosCadastrados.length}`);
-console.log(`Matrículas: ${matriculas.length}`);
-console.log(`Usuários: ${usuarios.length}`);
 
-// (57) Informações ativas
-secao("Exercício 57 - Dashboard com informações ativas");
-{
-  const alunosAtivos = filtrarAlunosPorStatus(alunos, "ativo").length;
-  const cursosAtivos = cursosCadastrados.filter((curso) => curso.ativo).length;
-  const matriculasAtivas = contarMatriculasAtivas(matriculas);
-  const usuariosAtivos = usuarios.filter((usuario) => usuario.status === "ativo").length;
+// ------------------------------------------------------------
+// EXPLORAÇÃO DO DOM (exercícios 3 a 22)
+// ------------------------------------------------------------
 
-  console.log(`Alunos ativos: ${alunosAtivos}`);
-  console.log(`Cursos ativos: ${cursosAtivos}`);
-  console.log(`Matrículas ativas: ${matriculasAtivas}`);
-  console.log(`Usuários ativos: ${usuariosAtivos}`);
+// Executada em todas as páginas
+function explorarDocumento() {
+  // (4) document representa a página carregada: a raiz da árvore DOM,
+  // por onde o JavaScript acessa e modifica todos os elementos.
+  console.log(document);
+
+  // (5) Selecionar o título principal pelo id
+  const titulo = document.querySelector("#titulo-sistema");
+  console.log(titulo);
+
+  // (6) Alterar o título
+  if (titulo !== null) {
+    titulo.textContent = "Sistema Acadêmico - 2026";
+  }
+
+  // (14) Consultar um atributo e (15) adicionar um title
+  const linkAlunos = document.querySelector("#link-alunos");
+
+  if (linkAlunos !== null) {
+    console.log(linkAlunos.getAttribute("href"));
+    linkAlunos.setAttribute("title", "Acessar cadastro de alunos");
+  }
 }
 
-// (58) Testar a função genérica
-secao("Exercício 58 - contarRegistros");
-console.log("alunos:", contarRegistros(alunos));
-console.log("cursos:", contarRegistros(cursosCadastrados));
-console.log("matriculas:", contarRegistros(matriculas));
-console.log("usuarios:", contarRegistros(usuarios));
+// Executada apenas no index.html (onde existe o Dashboard)
+function explorarCardsDoDashboard() {
+  // (7) querySelector() devolve APENAS o primeiro elemento encontrado
+  const card = document.querySelector(".card");
+  console.log(card);
 
-// (70) Desafio integrador: valores obtidos dinamicamente dos arrays
-function exibirResumoSistema() {
-  const totalAlunos = contarRegistros(alunos);
-  const alunosAtivos = filtrarAlunosPorStatus(alunos, "ativo").length;
+  // (8) querySelectorAll() devolve TODOS (uma NodeList)
+  const cards = document.querySelectorAll(".card");
+  console.log(cards);
 
-  const totalCursos = contarRegistros(cursosCadastrados);
-  const cursosAtivos = cursosCadastrados.filter((curso) => curso.ativo).length;
+  // (9) Percorrer os cards
+  cards.forEach((cardAtual) => {
+    console.log(cardAtual);
+  });
 
-  const totalMatriculas = contarRegistros(matriculas);
-  const matriculasAtivas = contarMatriculasAtivas(matriculas);
+  // (17) a (20) classList: add, remove, toggle e contains
+  const primeiroCard = document.querySelector(".card");
 
-  const totalUsuarios = contarRegistros(usuarios);
-  const usuariosAtivos = usuarios.filter((usuario) => usuario.status === "ativo").length;
+  primeiroCard.classList.add("destaque");
+  console.log("Após add:", primeiroCard.classList.contains("destaque"));       // true
 
-  console.log("\n=== SISTEMA ACADÊMICO ===\n");
-  console.log(`Total de alunos: ${totalAlunos}`);
-  console.log(`Alunos ativos: ${alunosAtivos}\n`);
-  console.log(`Total de cursos: ${totalCursos}`);
-  console.log(`Cursos ativos: ${cursosAtivos}\n`);
-  console.log(`Total de matrículas: ${totalMatriculas}`);
-  console.log(`Matrículas ativas: ${matriculasAtivas}\n`);
-  console.log(`Total de usuários: ${totalUsuarios}`);
-  console.log(`Usuários ativos: ${usuariosAtivos}`);
+  primeiroCard.classList.remove("destaque");
+  console.log("Após remove:", primeiroCard.classList.contains("destaque"));    // false
+
+  primeiroCard.classList.toggle("destaque"); // liga de novo
+  const resultado = primeiroCard.classList.contains("destaque");
+  console.log("Após toggle:", resultado);                                      // true
+  // O card fica em destaque; cada toggle() inverte o estado atual.
+
+  // (21) Criar elemento com createElement() e (22) adicioná-lo com append()
+  const paragrafo = document.createElement("p");
+  paragrafo.textContent = "Novo conteúdo criado via JavaScript.";
+
+  const main = document.querySelector("main");
+  main.append(paragrafo);
 }
-exibirResumoSistema();
+
+
+// ------------------------------------------------------------
+// DASHBOARD
+// ------------------------------------------------------------
+
+// (10) a (12) Totais, lidos dos arrays da Aula 09.
+// Os 4 spans (#total-...) existem no index.html; em outras páginas
+// apenas os que existirem são atualizados.
+function atualizarDashboard() {
+  definirTexto("#total-alunos", alunos.length);
+  definirTexto("#total-cursos", cursosCadastrados.length);
+  definirTexto("#total-matriculas", matriculas.length);
+  definirTexto("#total-usuarios", usuarios.length);
+
+  atualizarDashboardAtivos();
+}
+
+// (13) Segunda versão: apenas registros ATIVOS (usa filter())
+function atualizarDashboardAtivos() {
+  const alunosAtivos = filtrarAlunosPorStatus(alunos, "ativo");
+  const cursosAtivos = cursosCadastrados.filter((curso) => curso.ativo);
+  const matriculasAtivas = matriculas.filter((matricula) => matricula.status === "ativa");
+  const usuariosAtivos = usuarios.filter((usuario) => usuario.status === "ativo");
+
+  definirTexto("#ativos-alunos", alunosAtivos.length);
+  definirTexto("#ativos-cursos", cursosAtivos.length);
+  definirTexto("#ativos-matriculas", matriculasAtivas.length);
+  definirTexto("#ativos-usuarios", usuariosAtivos.length);
+}
+
+
+// ------------------------------------------------------------
+// ALUNOS
+// ------------------------------------------------------------
+
+// (24) a (30) Criar o card de um aluno com DOM e devolvê-lo.
+// Criar o elemento NÃO o coloca na página: ele só aparece depois
+// de ser adicionado ao DOM com append() (ver renderizarAlunos).
+function criarCardAluno(aluno) {
+  const cardAluno = document.createElement("article");
+  cardAluno.classList.add("card");
+
+  // (25) nome
+  const nome = document.createElement("h3");
+  nome.textContent = aluno.nome;
+
+  // (26) curso
+  const curso = document.createElement("p");
+  curso.textContent = `Curso: ${aluno.curso}`;
+
+  // (30) status, com a classe CSS adequada (69)
+  const status = document.createElement("p");
+  status.textContent = `Status: ${aluno.status}`;
+  status.classList.add(classeDoStatus(aluno.status));
+
+  // (27) montar o card
+  cardAluno.append(nome);
+  cardAluno.append(curso);
+  cardAluno.append(status);
+
+  // (65) e (66) botão "Ver detalhes"
+  const botaoDetalhes = document.createElement("button");
+  botaoDetalhes.type = "button";
+  botaoDetalhes.textContent = "Ver detalhes";
+  botaoDetalhes.addEventListener("click", () => {
+    console.log(aluno.nome);
+    exibirDetalhesAluno(aluno);
+  });
+
+  // (70) a (72) botão "Remover"
+  const botaoRemover = document.createElement("button");
+  botaoRemover.type = "button";
+  botaoRemover.classList.add("botao-secundario");
+  botaoRemover.textContent = "Remover";
+  botaoRemover.addEventListener("click", () => {
+    removerAluno(aluno.id);
+  });
+
+  const acoes = document.createElement("div");
+  acoes.classList.add("acoes");
+  acoes.append(botaoDetalhes, botaoRemover);
+  cardAluno.append(acoes);
+
+  return cardAluno;
+}
+
+// (31) a (33) Renderizar uma lista de alunos
+function renderizarAlunos(listaAlunos) {
+  const listaAlunosElemento = document.querySelector("#lista-alunos");
+
+  if (listaAlunosElemento === null) {
+    return;
+  }
+
+  // (32) Limpar ANTES de renderizar. Sem isso, cada chamada acrescentaria
+  // os cards de novo, duplicando os registros na tela (exercício 79).
+  // Também remove a mensagem de "nenhum resultado" de uma busca anterior (64).
+  listaAlunosElemento.textContent = "";
+
+  // (63) Nenhum resultado: mensagem criada com DOM
+  if (listaAlunos.length === 0) {
+    const mensagem = document.createElement("p");
+    mensagem.classList.add("mensagem-vazia");
+    mensagem.textContent = "Nenhum aluno encontrado.";
+    listaAlunosElemento.append(mensagem);
+    return;
+  }
+
+  for (const aluno of listaAlunos) {
+    listaAlunosElemento.append(criarCardAluno(aluno));
+  }
+}
+
+// (68) Atualizar a área de detalhes (textContent nos 3 parágrafos)
+function exibirDetalhesAluno(aluno) {
+  const detalheNome = document.querySelector("#detalhe-nome");
+  const detalheCurso = document.querySelector("#detalhe-curso");
+  const detalheStatus = document.querySelector("#detalhe-status");
+
+  if (detalheNome === null) {
+    return;
+  }
+
+  detalheNome.textContent = `Nome: ${aluno.nome}`;
+  detalheCurso.textContent = `Curso: ${aluno.curso}`;
+  detalheStatus.textContent = `Status: ${aluno.status}`;
+
+  // (69) trocar a classe de status
+  detalheStatus.classList.remove("status-ativo", "status-inativo");
+  detalheStatus.classList.add(classeDoStatus(aluno.status));
+
+  alunoEmDetalhe = aluno.id;
+}
+
+function limparDetalhesAluno() {
+  definirTexto("#detalhe-nome", "Clique em \"Ver detalhes\" em um dos alunos.");
+  definirTexto("#detalhe-curso", "");
+  definirTexto("#detalhe-status", "");
+  alunoEmDetalhe = null;
+}
+
+// (57) a (62) Busca por nome + filtro por status, funcionando juntos
+function aplicarFiltros() {
+  const termo = campoBusca === null ? "" : campoBusca.value.toLowerCase().trim();
+  const status = filtroStatus === null ? "" : filtroStatus.value;
+
+  const filtrados = alunos.filter((aluno) => {
+    const nomeConfere = aluno.nome.toLowerCase().includes(termo);
+    // (61) status vazio ("Todos") não filtra nada
+    const statusConfere = status === "" || aluno.status === status;
+    return nomeConfere && statusConfere;
+  });
+
+  // (58) renderizar o resultado
+  renderizarAlunos(filtrados);
+}
+
+// (39) a (41) Função separada para o evento click do botão.
+// event é o objeto do evento; event.target é o elemento em que o evento
+// ocorreu (aqui, o próprio botão "Atualizar lista").
+// Nos exercícios 38/39 a função chamava renderizarAlunos(alunos); agora
+// chama aplicarFiltros() para respeitar a busca e o filtro em uso (62).
+function atualizarListaAlunos(event) {
+  console.log(event);
+  console.log("event.target:", event.target);
+  aplicarFiltros();
+}
+
+// (56) evento input: dispara a cada letra digitada
+function aoDigitarBusca() {
+  console.log("Busca:", campoBusca.value);
+  aplicarFiltros();
+}
+
+// (60) evento change: dispara quando o usuário escolhe outra opção
+function aoMudarStatus() {
+  console.log("Status selecionado:", filtroStatus.value);
+  aplicarFiltros();
+}
+
+// (70) a (72) Remover aluno
+// Etapa do exercício 70: cardAluno.remove() retira apenas o ELEMENTO da
+// página. (71) Nesse caso, console.log(alunos) mostraria que o aluno
+// continua no array - o DOM e os dados são coisas separadas.
+// Etapa final (72): remover do ARRAY e renderizar novamente.
+function removerAluno(id) {
+  const indice = alunos.findIndex((aluno) => aluno.id === id);
+
+  if (indice === -1) {
+    return;
+  }
+
+  const [alunoRemovido] = alunos.splice(indice, 1);
+  console.log(`Aluno removido: ${alunoRemovido.nome}`);
+  console.log(alunos);
+
+  if (alunoEmDetalhe === id) {
+    limparDetalhesAluno();
+  }
+
+  aplicarFiltros();
+  atualizarDashboard(); // (74)
+}
+
+// (53) Mensagem de retorno do formulário (classes CSS, sem estilo inline - 76)
+function exibirMensagemFormulario(texto, tipo) {
+  const area = document.querySelector("#mensagem-form");
+
+  if (area === null) {
+    return;
+  }
+
+  area.textContent = "";
+
+  const mensagem = document.createElement("p");
+  mensagem.textContent = texto;
+  mensagem.classList.add(tipo === "erro" ? "mensagem-erro" : "mensagem-sucesso");
+  area.append(mensagem);
+}
+
+// (44) a (53) Cadastro de aluno
+// Fluxo: submit -> preventDefault -> captura -> objeto -> push
+//        -> renderizarAlunos -> atualizarDashboard
+function cadastrarAluno(event) {
+  // (45) Sem preventDefault(), o navegador enviaria o formulário e
+  // recarregaria a página, apagando os dados que estão só na memória.
+  event.preventDefault();
+  console.log("Formulário enviado.");
+
+  // (46) e (47) Capturar os campos
+  const nome = document.querySelector("#nome").value.trim();
+  const email = document.querySelector("#email").value.trim();
+  const curso = document.querySelector("#curso").value;
+  const status = document.querySelector("#status").value;
+  console.log("Nome digitado:", nome);
+
+  if (nome === "" || email === "" || curso === "") {
+    exibirMensagemFormulario("Preencha nome, e-mail e curso.", "erro");
+    return;
+  }
+
+  // (48) e (49) Objeto novoAluno (forma reduzida: nome, email, curso, status)
+  const novoAluno = {
+    id: gerarProximoId(alunos),
+    nome,
+    email,
+    curso,
+    status
+  };
+
+  // (50) Adicionar ao array
+  alunos.push(novoAluno);
+  console.log(alunos);
+
+  // Limpa busca e filtro para o novo aluno aparecer na lista
+  if (campoBusca !== null) {
+    campoBusca.value = "";
+  }
+  if (filtroStatus !== null) {
+    filtroStatus.value = "";
+  }
+
+  // (51) Atualizar a lista após o cadastro
+  renderizarAlunos(alunos);
+
+  // (73) Atualizar o Dashboard
+  atualizarDashboard();
+
+  // (52) Limpar o formulário
+  formularioAluno.reset();
+
+  exibirMensagemFormulario(`Aluno ${nome} cadastrado com sucesso.`, "sucesso");
+}
+
+
+// ------------------------------------------------------------
+// CURSOS, MATRÍCULAS E USUÁRIOS
+// ------------------------------------------------------------
+
+// Cria um card genérico: título + linhas de texto + status
+function criarCard(titulo, linhas, status) {
+  const card = document.createElement("article");
+  card.classList.add("card");
+
+  card.append(criarElementoComTexto("h3", titulo));
+
+  for (const linha of linhas) {
+    card.append(criarElementoComTexto("p", linha));
+  }
+
+  card.append(criarElementoComTexto("p", `Status: ${status}`, classeDoStatus(status)));
+
+  return card;
+}
+
+// Limpa o conteiner, mostra mensagem se a lista estiver vazia
+// e, caso contrário, adiciona um card para cada item.
+function renderizarLista(seletor, lista, criarCardDoItem, mensagemVazia) {
+  const conteiner = document.querySelector(seletor);
+
+  if (conteiner === null) {
+    return;
+  }
+
+  conteiner.textContent = "";
+
+  if (lista.length === 0) {
+    conteiner.append(criarElementoComTexto("p", mensagemVazia, "mensagem-vazia"));
+    return;
+  }
+
+  lista.forEach((item) => {
+    conteiner.append(criarCardDoItem(item));
+  });
+}
+
+// (34) Cursos
+function renderizarCursos(listaCursos) {
+  renderizarLista("#lista-cursos", listaCursos, (curso) => {
+    const status = curso.ativo ? "ativo" : "inativo";
+    return criarCard(curso.nome, [`Sigla: ${curso.sigla}`], status);
+  }, "Nenhum curso encontrado.");
+}
+
+// (35) Matrículas: número, aluno, curso e status
+function renderizarMatriculas(listaMatriculas) {
+  renderizarLista("#lista-matriculas", listaMatriculas, (matricula) => {
+    return criarCard(
+      `Matrícula ${matricula.numero}`,
+      [`Aluno: ${matricula.aluno}`, `Curso: ${matricula.curso}`],
+      matricula.status
+    );
+  }, "Nenhuma matrícula encontrada.");
+}
+
+// (36) Usuários: nome, perfil e status
+function renderizarUsuarios(listaUsuarios) {
+  renderizarLista("#lista-usuarios", listaUsuarios, (usuario) => {
+    return criarCard(usuario.nome, [`Perfil: ${usuario.perfil}`], usuario.status);
+  }, "Nenhum usuário encontrado.");
+}
+
+
+// ------------------------------------------------------------
+// DIAGNÓSTICOS (exercícios 78 a 82) - executado apenas no index.html
+// ------------------------------------------------------------
+
+function executarDiagnosticos() {
+  // (78) querySelector() com um id inexistente devolve null.
+  // Usar null.textContent causa: TypeError (Cannot set properties of null).
+  // Verificar: console.log(elemento) e testar if (elemento !== null).
+  const tituloInexistente = document.querySelector("#titulo-inexistente");
+  console.log("Diagnóstico 78:", tituloInexistente);
+
+  try {
+    tituloInexistente.textContent = "Novo título";
+  } catch (erro) {
+    console.log("Erro capturado:", erro.message);
+  }
+
+  // (79) Sem limpar antes de renderizar, chamar renderizarAlunos(alunos)
+  // duas vezes mostraria cada aluno DUAS vezes na tela.
+  // (80) Sem preventDefault(), o submit recarrega a página.
+  // (81) "clic" não é um evento válido (o correto é "click"): nenhum erro
+  // aparece, mas a função nunca é executada.
+
+  // (82) querySelector(".card") devolve 1 elemento; para obter todos,
+  // usa-se querySelectorAll(".card").
+  console.log("Diagnóstico 82 - querySelector:", document.querySelector(".card"));
+  console.log("Diagnóstico 82 - querySelectorAll:", document.querySelectorAll(".card").length, "cards");
+}
+
+
+// ------------------------------------------------------------
+// INICIALIZAÇÃO
+// ------------------------------------------------------------
+
+function registrarEventos() {
+  // (38) e (39) clique no botão
+  if (botaoAtualizar !== null) {
+    botaoAtualizar.addEventListener("click", atualizarListaAlunos);
+  }
+
+  // (56) busca
+  if (campoBusca !== null) {
+    campoBusca.addEventListener("input", aoDigitarBusca);
+  }
+
+  // (60) filtro de status
+  if (filtroStatus !== null) {
+    filtroStatus.addEventListener("change", aoMudarStatus);
+  }
+
+  // (53) cadastro de aluno
+  if (formularioAluno !== null) {
+    formularioAluno.addEventListener("submit", cadastrarAluno);
+  }
+}
+
+explorarDocumento();
+
+if (document.querySelector("#dashboard") !== null) {
+  explorarCardsDoDashboard();
+  executarDiagnosticos();
+}
+
+atualizarDashboard();
+renderizarAlunos(alunos);
+renderizarCursos(cursosCadastrados);
+renderizarMatriculas(matriculas);
+renderizarUsuarios(usuarios);
+registrarEventos();

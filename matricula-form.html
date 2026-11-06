@@ -12,7 +12,7 @@
 
   <!-- Cabeçalho principal -->
   <header class="cabecalho">
-    <h1>
+    <h1 id="titulo-sistema">
       Sistema de Gerenciamento Acadêmico
     </h1>
     <span>
@@ -24,7 +24,7 @@
   <nav>
     <ul>
       <li><a href="index.html">Dashboard</a></li>
-      <li><a href="alunos.html">Alunos</a></li>
+      <li><a id="link-alunos" href="alunos.html">Alunos</a></li>
       <li><a href="cursos.html">Cursos</a></li>
       <li><a href="matriculas.html">Matrículas</a></li>
       <li><a href="usuarios.html">Usuários</a></li>
@@ -45,19 +45,16 @@
         <select id="aluno" name="aluno" required>
           <option value="">Selecione</option>
           <option value="1">Ana Souza</option>
-          <option value="2">Bruno Lima</option>
-          <option value="3">Carla Mendes</option>
+          <option value="2">Carlos Silva</option>
+          <option value="3">Mariany Santos</option>
         </select>
 
         <label for="curso">Curso *</label>
         <select id="curso" name="curso" required>
           <option value="">Selecione</option>
-          <option value="cco">Ciência da Computação</option>
-          <option value="ads">Análise e Desenvolvimento de Sistemas</option>
-          <option value="sis">Sistemas de Informação</option>
-          <option value="esw">Engenharia de Software</option>
-          <option value="red">Redes de Computadores</option>
-          <option value="seg">Segurança da Informação</option>
+          <option value="ADS">Análise e Desenvolvimento de Sistemas</option>
+          <option value="CC">Ciência da Computação</option>
+          <option value="ES">Engenharia de Software</option>
         </select>
 
         <label for="periodo">Período letivo *</label>
@@ -101,6 +98,10 @@
   <footer>
     <p>&copy; 2026 Sistema Acadêmico</p>
   </footer>
+
+  <!-- JavaScript: a ordem deve ser preservada (dados antes da lógica) -->
+  <script src="js/dados.js"></script>
+  <script src="js/app.js"></script>
 
 </body>
 </html>

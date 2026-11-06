@@ -1,13 +1,12 @@
-# Sistema de Gerenciamento Acadêmico - Aula 09 (JavaScript ES6+)
+# Sistema de Gerenciamento Acadêmico - Aula 10 (DOM e Eventos)
 
 Atividade prática de **Programação Web I** - UNIVEST.
-Evolução do projeto anterior: foi adicionada a pasta `js/` com `dados.js` e `app.js`.
-O HTML e o CSS não foram alterados, exceto pela inclusão dos dois `<script>` no final do `index.html`.
+Evolução do projeto da Aula 09: o JavaScript agora lê os arrays do `dados.js` e atualiza a interface por meio do **DOM** e de **eventos**.
 
 ## Estrutura
 
 ```
-sistema-academico-aula09/
+sistema-academico-aula10/
 ├── index.html
 ├── alunos.html
 ├── aluno-form.html
@@ -22,108 +21,88 @@ sistema-academico-aula09/
 │   └── style.css
 │
 └── js/
-    ├── dados.js
-    └── app.js
+    ├── dados.js                 (dados de exemplo)
+    ├── app.js                   (lógica + DOM + eventos)
+    └── exercicios-aula09.js     (exercícios da Aula 09, preservados; não é carregado pelas páginas)
 ```
 
 ## Como testar
 
-1. Abrir o `index.html` no navegador (por exemplo, com o Live Server do VS Code).
-2. Apertar **F12** e abrir a aba **Console**.
-3. O console exibe a saída dos exercícios, separados por títulos como `--- Exercício 33 - filter() ---`, e termina com o resumo `=== SISTEMA ACADÊMICO ===`.
+1. Abrir o `index.html` com o Live Server e apertar **F12** (aba Console).
+2. **index.html**: indicadores calculados a partir dos arrays (total e ativos), primeiro card em destaque e saídas dos exercícios no console.
+3. **alunos.html**: lista, busca por nome, filtro por status, botão "Atualizar lista", "Ver detalhes", "Remover" e formulário de cadastro, tudo na mesma página.
+4. **cursos.html, matriculas.html, usuarios.html**: listas renderizadas pelo JavaScript.
+5. Os dados cadastrados ou removidos ficam só na memória: ao recarregar a página, voltam a ser os do `dados.js`.
 
-Resultado do desafio integrador (exercício 70), obtido dinamicamente dos arrays:
-
-```
-=== SISTEMA ACADÊMICO ===
-
-Total de alunos: 3
-Alunos ativos: 2
-
-Total de cursos: 3
-Cursos ativos: 2
-
-Total de matrículas: 3
-Matrículas ativas: 2
-
-Total de usuários: 3
-Usuários ativos: 2
-```
-
-## Organização do `app.js` (exercício 65)
+## Onde está cada exercício (`js/app.js`)
 
 | Bloco | Exercícios |
 |---|---|
-| Configuração inicial | 4 a 19 (constantes, `let`, tipos, operadores, condicionais, laços e funções) |
-| Operações com alunos | 27 a 29, 31 a 35, 43 a 45, 48, 53 a 55 |
-| Operações com cursos | 20 a 26, 46, 47, 50 a 52 |
-| Operações com matrículas | 37 a 39 |
-| Operações com usuários | 41 e 42 |
-| Diagnósticos e comparações | 59 a 64 (bloco extra, com explicações em comentário) |
-| Resumo do dashboard | 56 a 58 e 70 |
+| Configuração inicial | 3, 5, 43, 55, 60 (seleção dos elementos) |
+| Funções auxiliares e funções da Aula 09 | 77 (textContent + createElement), 69 |
+| Exploração do DOM | 4 a 9, 14, 15, 17 a 22 |
+| Dashboard | 10 a 13, 73, 74 |
+| Alunos | 24 a 33, 38 a 41, 44 a 53, 56 a 72 |
+| Cursos, matrículas e usuários | 34 a 36 |
+| Diagnósticos | 78 a 82 |
+| Inicialização | 75 (organização das funções) |
 
-Cada exercício fica dentro de um bloco `{ }`. Assim, nomes repetidos nos exercícios (`nome`, `aluno`, `cursos`, `calcularMedia`) não geram conflito de declaração.
+Fluxo implementado (exercício 85):
+`submit` → `preventDefault()` → captura dos campos → objeto `novoAluno` → `alunos.push()` → `renderizarAlunos()` → `atualizarDashboard()` → interface atualizada.
 
-## Exercício 59 - Versão explícita x compacta
+## Decisões de implementação
 
-```js
-// Explícita
-const ativos = alunos.filter((aluno) => {
-  return aluno.status === "ativo";
-});
+- **Scripts em todas as páginas.** O mesmo `app.js` roda em todas; por isso as funções verificam se o elemento existe antes de usá-lo (`querySelector()` devolve `null` quando não encontra). A função `definirTexto()` faz essa verificação.
+- **Cadastro na página de alunos.** O desafio integrador pede lista, busca, filtro e cadastro na mesma página. Como os dados só ficam na memória, o formulário (`#form-aluno`) está em `alunos.html` e também em `aluno-form.html`, que mostra a lista logo abaixo.
+- **Formulário simplificado.** Os campos são `nome`, `email`, `curso` e `status`, os mesmos do objeto `novoAluno`. Os campos de nascimento e observação foram retirados.
+- **Novo id.** O enunciado usa `alunos.length + 1`, mas depois de remover um aluno isso poderia repetir um id. Foi usado o maior id atual + 1 (`gerarProximoId`).
+- **Dashboard dinâmico.** Os números fixos (245, 8...) foram trocados por spans (`#total-alunos` etc.) preenchidos a partir dos arrays. Cada card mostra também os registros ativos (exercício 13).
+- **Experimentos temporários.** Os exercícios que pedem "modificar temporariamente" (38 a 41, 17 a 20) estão documentados em comentários, e o código final mantém a versão mais completa.
+- **Sem estilo inline.** O JavaScript só usa `classList` (`destaque`, `status-ativo`, `status-inativo`, `mensagem-vazia`, `mensagem-sucesso`, `mensagem-erro`); a aparência está no `style.css`. Não foi usado `innerHTML` nem LocalStorage.
 
-// Compacta
-const ativos = alunos.filter((aluno) => aluno.status === "ativo");
-```
+## Respostas
 
-A mesma comparação foi feita com `map()` (nomes dos cursos). Para a **aprendizagem inicial**, a versão explícita é mais adequada: as chaves e o `return` mostram claramente o que a função recebe e devolve. A compacta é mais curta e fica natural depois que o conceito de retorno está dominado.
+**Ex. 4 - O que o objeto `document` representa?** A página HTML carregada, como árvore de elementos (DOM). É o ponto de entrada para selecionar, criar e alterar elementos.
 
-## Exercícios 60 a 64 - Diagnósticos
+**Ex. 9 - `querySelector()` x `querySelectorAll()`:** `querySelector()` devolve só o **primeiro** elemento que corresponde ao seletor (ou `null`); `querySelectorAll()` devolve uma **NodeList com todos** (vazia se não houver nenhum).
 
-| Ex. | Código | Resultado e explicação |
+**Ex. 32 - Por que limpar a lista antes de renderizar?** Porque `append()` acrescenta ao que já existe. Sem `textContent = ""`, cada renderização repetiria os cards e a lista ficaria duplicada. A limpeza também remove a mensagem de "nenhum resultado" de uma busca anterior (ex. 64).
+
+**Ex. 41 - O que é `event.target`?** O elemento em que o evento ocorreu (por exemplo, o botão que foi clicado).
+
+**Ex. 45 - Diferença com `preventDefault()`:** sem ele, o navegador envia o formulário e recarrega a página, e os dados que estavam só na memória são perdidos. Com ele, a página continua aberta e o JavaScript trata o envio.
+
+**Ex. 71 - O aluno foi removido do array?** Não. `elemento.remove()` retira só o elemento da página; o array `alunos` continua com o registro. DOM e dados são coisas separadas (por isso o exercício 72 remove também do array com `splice()` e renderiza de novo).
+
+### Diagnósticos (78 a 82)
+
+| Ex. | Situação | Resultado |
 |---|---|---|
-| 60 | `const nome = "Ana"; nome = "Carlos";` | `TypeError: Assignment to constant variable.` Uma `const` não pode ser reatribuída. Correção: usar `let` quando o valor precisa mudar. |
-| 61 | `quantidade === "10"` (com `quantidade = 10`) | `false`. O `===` compara valor **e tipo**, e `10` (number) é diferente de `"10"` (string). |
-| 62 | `alunos[2]` em um array com 2 itens | `undefined`. Os índices começam em 0, então só existem `[0]` e `[1]`. |
-| 63 | `find()` sem encontrar nada | Retorna `undefined`. |
-| 64 | `filter()` sem encontrar nada | Retorna um **array vazio** (`[]`), com `length` igual a 0. Um array vazio ainda é "verdadeiro" em um `if`, então o correto é verificar o `length`. |
+| 78 | `querySelector("#titulo-inexistente")` e depois `.textContent = ...` | O seletor devolve `null`, e atribuir `textContent` a `null` gera `TypeError: Cannot set properties of null`. Verificar com `console.log(titulo)` e testar `if (titulo !== null)`. |
+| 79 | `renderizarAlunos(alunos)` duas vezes sem limpar | Cada aluno aparece duas vezes na tela, porque `append()` só acrescenta. |
+| 80 | `submit` sem `preventDefault()` | A página é recarregada/navega, a mensagem "Salvando" some do console e os dados em memória se perdem. |
+| 81 | `addEventListener("clic", salvar)` | `"clic"` não é um evento existente: não há erro, mas a função nunca é chamada. O correto é `"click"`. |
+| 82 | `querySelector(".card")` com dez cards | Retorna **1** elemento (o primeiro). Para obter todos: `querySelectorAll(".card")`. |
 
-## Exercício 67 - Separação de responsabilidades
+### Questões teóricas (83)
 
-```
-dados.js  ->  dados     (alunos, cursosCadastrados, matriculas, usuarios)
-app.js    ->  lógica    (variáveis, condições, laços, funções, filter/map/find)
-```
-
-O `dados.js` só guarda informações e não tem lógica. O `app.js` só processa essas informações. Assim, os dados podem mudar sem mexer na lógica, e a lógica pode ser reutilizada na Aula 10 para gerar a interface a partir dos mesmos arrays.
-
-## Exercício 68 - Testes no console
-
-Foi verificado que:
-- não há erros no console;
-- os 4 arrays são carregados e acessíveis;
-- as funções (`calcularMedia`, `contarMatriculasAtivas`, `buscarCursoPorSigla`, `buscarAlunoPorId`, `filtrarAlunosPorStatus`, `obterNomesAlunos`, `contarRegistros`) retornam o esperado;
-- os filtros retornam 2 alunos ativos (Ana Souza e Mariany Santos), 2 cursos ativos, 2 matrículas ativas e 2 usuários ativos;
-- as buscas retornam Carlos Silva (aluno), o curso CC e o usuário Administrador, e `undefined` quando não encontram.
-
-## Exercício 69 - Questões teóricas
-
-1. **Diferença entre `let` e `const`:** com `let` o valor pode ser reatribuído; com `const` não. Ambas têm escopo de bloco. Em uma `const` que guarda objeto ou array, o conteúdo ainda pode ser alterado; o que não muda é a referência.
-2. **Por que evitar `var`:** ela tem escopo de função (não de bloco), sofre hoisting com valor `undefined` e permite redeclaração, o que causa bugs difíceis de achar. `let` e `const` são mais previsíveis.
-3. **O que faz `===`:** é a igualdade estrita; compara valor e tipo, sem conversão automática.
-4. **`&&` x `||`:** `&&` (E) só é verdadeiro se **as duas** condições forem verdadeiras; `||` (OU) é verdadeiro se **pelo menos uma** for verdadeira.
-5. **Função do `if`:** executar um bloco de código somente quando a condição é verdadeira (desvio condicional).
-6. **Para que serve uma função:** agrupar um trecho de código reutilizável, que pode receber parâmetros e devolver um valor, evitando repetição e organizando o programa.
-7. **Array x objeto:** o array é uma lista ordenada acessada por índice (`cursos[0]`); o objeto é um conjunto de pares chave-valor acessados pelo nome da propriedade (`aluno.nome`).
-8. **`filter()`:** cria um novo array apenas com os elementos que passam no teste; se nenhum passar, retorna `[]`.
-9. **`map()`:** cria um novo array transformando cada elemento; o resultado tem o mesmo tamanho do original.
-10. **`find()`:** retorna o **primeiro** elemento que satisfaz a condição, ou `undefined` se nenhum satisfizer.
-11. **`length`:** informa a quantidade de elementos de um array (ou de caracteres de uma string).
-12. **Template literal:** string escrita com crases (`` ` ``) que permite inserir valores com `${...}` e ocupar várias linhas.
-13. **Desestruturação:** sintaxe que extrai propriedades de um objeto ou elementos de um array para variáveis, em uma única linha.
-14. **Spread operator (`...`):** espalha os elementos de um array ou as propriedades de um objeto, permitindo copiar ou combinar sem alterar o original (a cópia é rasa).
-15. **Por que `dados.js` antes de `app.js`:** o navegador executa os scripts na ordem em que aparecem. O `app.js` usa `alunos`, `matriculas` etc.; se for carregado primeiro, ocorre `ReferenceError: alunos is not defined`.
-
-## Restrição da aula (exercício 71)
-
-Não foram usados os recursos de manipulação do DOM, `innerHTML`, `textContent`, eventos, `LocalStorage` nem React. Os resultados aparecem apenas no console.
+1. **DOM:** *Document Object Model*, a representação da página como uma árvore de objetos que o JavaScript pode ler e modificar.
+2. **`document`:** objeto que representa a página inteira e oferece métodos para selecionar e criar elementos.
+3. **`querySelector()` x `querySelectorAll()`:** primeiro elemento x todos os elementos (ver exercício 9).
+4. **`textContent`:** lê ou altera o texto de um elemento, tratando o conteúdo como texto puro.
+5. **`value`:** o valor atual de um campo de formulário (o que o usuário digitou ou selecionou).
+6. **`classList`:** permite adicionar (`add`), remover (`remove`), alternar (`toggle`) e verificar (`contains`) classes CSS de um elemento.
+7. **`createElement()`:** cria um novo elemento HTML na memória (por exemplo, `document.createElement("p")`).
+8. **Criar x adicionar ao DOM:** o elemento criado existe só na memória e não aparece; ele só é exibido depois de inserido em um elemento da página, com `append()`.
+9. **`append()`:** insere um ou mais elementos (ou textos) no final de outro elemento.
+10. **`remove()`:** retira o elemento da página (do DOM).
+11. **Evento:** algo que acontece na página, como um clique, a digitação, a escolha de uma opção ou o envio de um formulário.
+12. **`addEventListener()`:** registra uma função que será executada quando um tipo de evento ocorrer em um elemento.
+13. **`event.target`:** o elemento que originou o evento.
+14. **`preventDefault()`:** cancela o comportamento padrão do navegador para o evento (por exemplo, o envio e o recarregamento do formulário).
+15. **`input` x `change`:** `input` dispara a cada alteração do campo (a cada letra digitada); `change` dispara quando o valor é confirmado (ao escolher outra opção de um `select` ou ao sair do campo).
+16. **Limpar antes de renderizar:** para não duplicar os registros na tela (ver exercício 32).
+17. **Vantagem de separar em funções:** reutilizar código, facilitar testes e manutenção e deixar o programa mais legível.
+18. **Classes CSS em vez de estilos inline:** mantém a aparência no CSS (um único lugar), facilita a manutenção, permite reaproveitar estilos e deixa o JavaScript só com a lógica.
+19. **`textContent` com textos do usuário:** ele insere o conteúdo como texto, nunca como HTML. Assim, algo como `<b>x</b>` aparece literalmente, sem criar elementos nem executar código indesejado (evita injeção de HTML).
+20. **Por que os dados somem ao recarregar:** os arrays ficam apenas na memória da página; ao recarregar, o navegador executa o `dados.js` de novo e os valores voltam ao estado original. Para manter os dados seria preciso um armazenamento permanente (LocalStorage ou servidor), que será visto depois.

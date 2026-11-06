@@ -12,7 +12,7 @@
 
   <!-- Cabeçalho principal -->
   <header class="cabecalho">
-    <h1>
+    <h1 id="titulo-sistema">
       Sistema de Gerenciamento Acadêmico
     </h1>
     <span>
@@ -24,7 +24,7 @@
   <nav>
     <ul>
       <li><a href="index.html">Dashboard</a></li>
-      <li><a href="alunos.html">Alunos</a></li>
+      <li><a id="link-alunos" href="alunos.html">Alunos</a></li>
       <li><a href="cursos.html">Cursos</a></li>
       <li><a href="matriculas.html">Matrículas</a></li>
       <li><a href="usuarios.html">Usuários</a></li>
@@ -88,6 +88,10 @@
   <footer>
     <p>&copy; 2026 Sistema Acadêmico</p>
   </footer>
+
+  <!-- JavaScript: a ordem deve ser preservada (dados antes da lógica) -->
+  <script src="js/dados.js"></script>
+  <script src="js/app.js"></script>
 
 </body>
 </html>

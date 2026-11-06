@@ -12,7 +12,7 @@
 
   <!-- Cabeçalho principal -->
   <header class="cabecalho">
-    <h1>
+    <h1 id="titulo-sistema">
       Sistema de Gerenciamento Acadêmico
     </h1>
     <span>
@@ -24,7 +24,7 @@
   <nav>
     <ul>
       <li><a href="index.html">Dashboard</a></li>
-      <li><a href="alunos.html">Alunos</a></li>
+      <li><a id="link-alunos" href="alunos.html">Alunos</a></li>
       <li><a href="cursos.html">Cursos</a></li>
       <li><a href="matriculas.html">Matrículas</a></li>
       <li><a href="usuarios.html">Usuários</a></li>
@@ -41,32 +41,141 @@
         Novo Aluno
       </a>
 
-      <!-- Grid Container: div.lista-grid | Grid Items: os .card (3 colunas) -->
-      <div class="lista-grid">
-        <article class="card">
-          <h3>Ana Souza</h3>
-          <p>Curso: Ciência da Computação</p>
-          <p>Situação: Ativo</p>
-        </article>
+      <!-- Resumo: atualizado por atualizarDashboard() -->
+      <article class="card resumo">
+        <h3>Resumo</h3>
+        <p>Total de alunos: <span id="total-alunos">0</span></p>
+        <p>Alunos ativos: <span id="ativos-alunos">0</span></p>
+      </article>
 
-        <article class="card">
-          <h3>Bruno Lima</h3>
-          <p>Curso: Análise e Desenvolvimento de Sistemas</p>
-          <p>Situação: Ativo</p>
-        </article>
+      <!-- Busca por nome + filtro por status + botão de atualização -->
+      <div class="filtros">
+        <div>
+          <label for="busca">
+            Buscar aluno
+          </label>
+          <input
+            id="busca"
+            type="search"
+            placeholder="Digite o nome">
+        </div>
 
-        <article class="card">
-          <h3>Carla Mendes</h3>
-          <p>Curso: Ciência da Computação</p>
-          <p>Situação: Inativo</p>
-        </article>
+        <div>
+          <label for="filtro-status">
+            Status
+          </label>
+          <select id="filtro-status">
+            <option value="">
+              Todos
+            </option>
+            <option value="ativo">
+              Ativo
+            </option>
+            <option value="inativo">
+              Inativo
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <button
+            type="button"
+            id="btn-atualizar">
+            Atualizar lista
+          </button>
+        </div>
       </div>
+
+      <!-- Grid Container preenchido pelo JavaScript (renderizarAlunos) -->
+      <div
+        id="lista-alunos"
+        class="lista-grid">
+      </div>
+    </section>
+
+    <section id="detalhes-aluno">
+      <h2>Detalhes do Aluno</h2>
+      <p id="detalhe-nome">Clique em "Ver detalhes" em um dos alunos.</p>
+      <p id="detalhe-curso"></p>
+      <p id="detalhe-status"></p>
+    </section>
+
+    <section>
+      <h2>Cadastrar novo aluno</h2>
+      <p>Campos marcados com * são obrigatórios.</p>
+
+      <aside class="aviso">
+        <p>Os alunos cadastrados ficam apenas na memória da página: eles
+        desaparecem ao recarregar ou ao trocar de página (o armazenamento
+        permanente será estudado nas próximas aulas).</p>
+      </aside>
+
+      <form id="form-aluno" action="#" method="post">
+
+        <fieldset>
+          <legend>Dados do Aluno</legend>
+
+          <label for="nome">Nome *</label>
+          <input
+            type="text"
+            id="nome"
+            name="nome"
+            placeholder="Digite o nome completo"
+            required
+            minlength="3"
+            maxlength="60">
+
+          <label for="email">E-mail *</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="nome@exemplo.com"
+            required>
+        </fieldset>
+
+        <fieldset>
+          <legend>Dados Acadêmicos</legend>
+
+          <label for="curso">Curso *</label>
+          <select id="curso" name="curso" required>
+            <option value="">Selecione</option>
+          <option value="ADS">Análise e Desenvolvimento de Sistemas</option>
+          <option value="CC">Ciência da Computação</option>
+          <option value="ES">Engenharia de Software</option>
+          </select>
+
+          <label for="status">Status</label>
+          <select id="status" name="status">
+            <option value="ativo">Ativo</option>
+            <option value="inativo">Inativo</option>
+          </select>
+        </fieldset>
+
+        <div class="acoes">
+          <button type="submit">
+            Salvar
+          </button>
+          <button
+            type="reset"
+            class="botao-secundario">
+            Limpar
+          </button>
+        </div>
+
+        <!-- Mensagens de sucesso/erro criadas pelo JavaScript -->
+        <div id="mensagem-form"></div>
+      </form>
     </section>
   </main>
 
   <footer>
     <p>&copy; 2026 Sistema Acadêmico</p>
   </footer>
+
+  <!-- JavaScript: a ordem deve ser preservada (dados antes da lógica) -->
+  <script src="js/dados.js"></script>
+  <script src="js/app.js"></script>
 
 </body>
 </html>

@@ -12,7 +12,7 @@
 
   <!-- Cabeçalho principal -->
   <header class="cabecalho">
-    <h1>
+    <h1 id="titulo-sistema">
       Sistema de Gerenciamento Acadêmico
     </h1>
     <span>
@@ -24,7 +24,7 @@
   <nav>
     <ul>
       <li><a href="index.html">Dashboard</a></li>
-      <li><a href="alunos.html">Alunos</a></li>
+      <li><a id="link-alunos" href="alunos.html">Alunos</a></li>
       <li><a href="cursos.html">Cursos</a></li>
       <li><a href="matriculas.html">Matrículas</a></li>
       <li><a href="usuarios.html">Usuários</a></li>
@@ -41,19 +41,10 @@
         Nova Matrícula
       </a>
 
-      <!-- Grid Container: div.lista-grid | Grid Items: os .card (3 colunas) -->
-      <div class="lista-grid">
-        <article class="card">
-          <h3>Ana Souza</h3>
-          <p>Curso: Ciência da Computação</p>
-          <p>Período: 2026/2</p>
-        </article>
-
-        <article class="card">
-          <h3>Bruno Lima</h3>
-          <p>Curso: Análise e Desenvolvimento de Sistemas</p>
-          <p>Período: 2026/2</p>
-        </article>
+      <!-- Grid Container preenchido pelo JavaScript a partir do dados.js -->
+      <div
+        id="lista-matriculas"
+        class="lista-grid">
       </div>
     </section>
   </main>
@@ -61,6 +52,10 @@
   <footer>
     <p>&copy; 2026 Sistema Acadêmico</p>
   </footer>
+
+  <!-- JavaScript: a ordem deve ser preservada (dados antes da lógica) -->
+  <script src="js/dados.js"></script>
+  <script src="js/app.js"></script>
 
 </body>
 </html>

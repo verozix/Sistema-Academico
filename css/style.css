@@ -334,3 +334,91 @@ footer {
   padding: 16px;
   text-align: center;
 }
+
+
+/* ==========================================================
+   8. DOM (AULA 10) - CLASSES USADAS PELO JAVASCRIPT
+   O JavaScript apenas adiciona/remove estas classes com
+   classList; a aparência continua definida aqui, no CSS
+   externo (nada de estilos inline pelo JavaScript).
+   ========================================================== */
+
+/* Exercício 16: realce usado com classList.add/remove/toggle */
+.destaque {
+  border: 2px solid currentColor;
+  font-weight: bold;
+}
+
+/* Exercício 69: classes de status */
+.status-ativo {
+  font-weight: bold;
+}
+
+.status-inativo {
+  opacity: 0.7;
+}
+
+/* Mensagem de "nenhum resultado" (ocupa todas as colunas da grade) */
+.mensagem-vazia {
+  grid-column: 1 / -1;
+  background-color: #fff8dc;
+  border: 1px solid #e5d59b;
+  padding: 16px;
+  margin: 0;
+}
+
+/* Mensagens do formulário (exercício 76: classes em vez de style) */
+.mensagem-sucesso {
+  background-color: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  color: #1b5e20;
+  padding: 12px;
+  margin: 16px 0 0 0;
+}
+
+.mensagem-erro {
+  background-color: #fdecea;
+  border: 1px solid #f5c2c0;
+  color: #b71c1c;
+  padding: 12px;
+  margin: 16px 0 0 0;
+}
+
+/* Busca + filtro + botão (Grid de 3 colunas) */
+.filtros {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+  background-color: white;
+  border: 1px solid #dddddd;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.filtros input,
+.filtros select {
+  margin-bottom: 0;
+}
+
+.resumo {
+  margin-bottom: 16px;
+}
+
+/* Botões dentro dos cards (Ver detalhes / Remover) */
+.card .acoes {
+  margin-top: 12px;
+  justify-content: flex-start;
+}
+
+/* Área de detalhes do aluno */
+#detalhes-aluno {
+  background-color: white;
+  border: 1px solid #dddddd;
+  padding: 20px;
+}
+
+/* Espaço entre seções consecutivas dentro do main */
+main section + section {
+  margin-top: 24px;
+}

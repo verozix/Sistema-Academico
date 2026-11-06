@@ -12,7 +12,7 @@
 
   <!-- Cabeçalho principal -->
   <header class="cabecalho">
-    <h1>
+    <h1 id="titulo-sistema">
       Sistema de Gerenciamento Acadêmico
     </h1>
     <span>
@@ -24,7 +24,7 @@
   <nav>
     <ul>
       <li><a href="index.html">Dashboard</a></li>
-      <li><a href="alunos.html">Alunos</a></li>
+      <li><a id="link-alunos" href="alunos.html">Alunos</a></li>
       <li><a href="cursos.html">Cursos</a></li>
       <li><a href="matriculas.html">Matrículas</a></li>
       <li><a href="usuarios.html">Usuários</a></li>
@@ -40,30 +40,32 @@
     <section id="dashboard">
       <h2>Dashboard</h2>
 
-      <!-- ATIVIDADE 1 - CSS Grid no Dashboard
-           Grid Container: esta div.dashboard-grid
-           Grid Items: os 4 articles .card (Alunos, Cursos, Matrículas, Usuários)
-           Colunas: 4 (repeat(4, 1fr), definido no css/style.css)
-           O card Alunos usa .card-destaque e ocupa 2 colunas (span 2) -->
+      <!-- Grid Container: .dashboard-grid | Grid Items: os 4 .card.
+           Os números (spans com id) são preenchidos pelo app.js
+           a partir dos arrays do dados.js (atualizarDashboard). -->
       <div class="dashboard-grid">
         <article class="card card-destaque">
           <h3>Alunos</h3>
-          <p>245</p>
+          <p>Total: <span id="total-alunos">0</span></p>
+          <p>Ativos: <span id="ativos-alunos">0</span></p>
         </article>
 
         <article class="card">
           <h3>Cursos</h3>
-          <p>8</p>
+          <p>Total: <span id="total-cursos">0</span></p>
+          <p>Ativos: <span id="ativos-cursos">0</span></p>
         </article>
 
         <article class="card">
           <h3>Matrículas</h3>
-          <p>310</p>
+          <p>Total: <span id="total-matriculas">0</span></p>
+          <p>Ativos: <span id="ativos-matriculas">0</span></p>
         </article>
 
         <article class="card">
           <h3>Usuários</h3>
-          <p>12</p>
+          <p>Total: <span id="total-usuarios">0</span></p>
+          <p>Ativos: <span id="ativos-usuarios">0</span></p>
         </article>
       </div>
     </section>
