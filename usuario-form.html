@@ -36,7 +36,7 @@
       <h2>Cadastro de Usuário</h2>
       <p>Campos marcados com * são obrigatórios.</p>
 
-      <form action="#" method="post">
+      <form id="form-usuario" action="#" method="post">
 
       <fieldset>
         <legend>Dados de Acesso</legend>
@@ -68,7 +68,7 @@
         <label for="perfil">Perfil *</label>
         <select id="perfil" name="perfil" required>
           <option value="">Selecione</option>
-          <option value="admin">Administrador</option>
+          <option value="administrador">Administrador</option>
           <option value="secretaria">Secretaria</option>
           <option value="professor">Professor</option>
         </select>
@@ -92,6 +92,9 @@
             Limpar
           </button>
         </div>
+
+        <!-- Mensagens de sucesso/erro criadas pelo JavaScript -->
+        <div id="mensagem-form"></div>
       </form>
     </section>
   </main>
@@ -100,8 +103,12 @@
     <p>&copy; 2026 Sistema Acadêmico</p>
   </footer>
 
-  <!-- JavaScript: a ordem deve ser preservada (dados antes da lógica) -->
+  <!-- JavaScript: a ordem deve ser preservada:
+       1) dados.js    -> dados iniciais (valores padrão)
+       2) storage.js  -> funções de LocalStorage (usam as chaves)
+       3) app.js      -> lógica; usa os dados E as funções de storage -->
   <script src="js/dados.js"></script>
+  <script src="js/storage.js"></script>
   <script src="js/app.js"></script>
 
 </body>

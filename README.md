@@ -1,108 +1,168 @@
-# Sistema de Gerenciamento Acadêmico - Aula 10 (DOM e Eventos)
+# Sistema de Gerenciamento Acadêmico - Aula 11 (Persistência com LocalStorage)
 
 Atividade prática de **Programação Web I** - UNIVEST.
-Evolução do projeto da Aula 09: o JavaScript agora lê os arrays do `dados.js` e atualiza a interface por meio do **DOM** e de **eventos**.
+Evolução do projeto da Aula 10: os dados agora são gravados no **LocalStorage** (em JSON) e continuam disponíveis depois de atualizar (F5) ou fechar a página.
 
 ## Estrutura
 
 ```
-sistema-academico-aula10/
-├── index.html
-├── alunos.html
-├── aluno-form.html
-├── cursos.html
-├── curso-form.html
-├── matriculas.html
-├── matricula-form.html
-├── usuarios.html
-├── usuario-form.html
-│
-├── css/
-│   └── style.css
-│
+sistema-academico-aula11/
+├── index.html, alunos.html, aluno-form.html, cursos.html, curso-form.html,
+│   matriculas.html, matricula-form.html, usuarios.html, usuario-form.html
+├── css/style.css
 └── js/
-    ├── dados.js                 (dados de exemplo)
-    ├── app.js                   (lógica + DOM + eventos)
-    └── exercicios-aula09.js     (exercícios da Aula 09, preservados; não é carregado pelas páginas)
+    ├── dados.js     (somente os dados INICIAIS: alunosIniciais, cursosIniciais, ...)
+    ├── storage.js   (chaves + salvarDados, carregarDados, removerDados)
+    └── app.js       (lógica + DOM + eventos; usa os dois arquivos anteriores)
 ```
 
 ## Como testar
 
-1. Abrir o `index.html` com o Live Server e apertar **F12** (aba Console).
-2. **index.html**: indicadores calculados a partir dos arrays (total e ativos), primeiro card em destaque e saídas dos exercícios no console.
-3. **alunos.html**: lista, busca por nome, filtro por status, botão "Atualizar lista", "Ver detalhes", "Remover" e formulário de cadastro, tudo na mesma página.
-4. **cursos.html, matriculas.html, usuarios.html**: listas renderizadas pelo JavaScript.
-5. Os dados cadastrados ou removidos ficam só na memória: ao recarregar a página, voltam a ser os do `dados.js`.
+1. Abrir `alunos.html` com o Live Server e apertar **F12**.
+2. Cadastrar um aluno, atualizar a página (F5) e ver que ele continua. Conferir em *DevTools > Application > Local Storage*.
+3. Remover um aluno, usar **Inativar/Ativar**, buscar e filtrar. Atualizar a página e conferir o que permaneceu.
+4. **Restaurar dados iniciais** volta os alunos ao `dados.js` e grava de novo no LocalStorage.
+5. Cursos, matrículas e usuários também são cadastrados pelos formulários e salvos.
 
-## Onde está cada exercício (`js/app.js`)
+## Onde está cada exercício
 
-| Bloco | Exercícios |
+| Exercícios | Onde |
 |---|---|
-| Configuração inicial | 3, 5, 43, 55, 60 (seleção dos elementos) |
-| Funções auxiliares e funções da Aula 09 | 77 (textContent + createElement), 69 |
-| Exploração do DOM | 4 a 9, 14, 15, 17 a 22 |
-| Dashboard | 10 a 13, 73, 74 |
-| Alunos | 24 a 33, 38 a 41, 44 a 53, 56 a 72 |
-| Cursos, matrículas e usuários | 34 a 36 |
-| Diagnósticos | 78 a 82 |
-| Inicialização | 75 (organização das funções) |
+| 3, 23 a 29, 46, 52, 74 | `js/storage.js` |
+| 30, 75 | `js/dados.js` |
+| 4 | `<script>` no final de todas as páginas HTML |
+| 31 a 38, 40, 42 a 44, 48 a 50, 56 a 58, 60, 66, 67, 72, 76, 83 a 85 | `js/app.js` |
+| 5 a 22, 39, 41, 45, 47, 51, 53, 55, 61 a 64, 68, 70, 73 | testes no Console / navegador (comandos abaixo) |
+| 11, 17, 18, 24, 36, 54, 59, 62, 65, 69, 71, 77 a 82 | respostas abaixo |
 
-Fluxo implementado (exercício 85):
-`submit` → `preventDefault()` → captura dos campos → objeto `novoAluno` → `alunos.push()` → `renderizarAlunos()` → `atualizarDashboard()` → interface atualizada.
+### Decisões de implementação
 
-## Decisões de implementação
+- **Variável `cursos`.** Antes o array chamava `cursosCadastrados`; agora é `cursosIniciais` (no `dados.js`) e `cursos` (no `app.js`), como no enunciado.
+- **`gerarNovoId()`** usa o maior id + 1. Recebe a lista como parâmetro (padrão: `alunos`) para também servir a cursos e usuários.
+- **`alterarStatusAluno()`** redesenha com `aplicarFiltros()` e não com `renderizarAlunos(alunos)`, para respeitar a busca e o filtro que estiverem ativos. O card ganhou o botão **Inativar/Ativar**.
+- **`carregarDados()`** também devolve o valor padrão se o JSON for válido mas não for uma lista (`Array.isArray`). `salvarDados()` tem `try...catch` para o caso de o armazenamento estar cheio ou bloqueado.
+- **`restaurarTodosDados()`** (extra) restaura os quatro conjuntos de uma vez; serve para o exercício 64 (depois do `clear()`).
+- **Formulários de curso, matrícula e usuário** ganharam `id` e tratamento do `submit`, senão não haveria o que persistir nos exercícios 56 a 58. O select de alunos da matrícula é montado a partir dos alunos salvos.
+- **Usuários sem dados sensíveis (60).** A senha é lida do formulário só para a validação do campo; o objeto salvo tem apenas `id`, `nome`, `perfil` e `status`.
+- O arquivo `exercicios-aula09.js` e os experimentos do console da Aula 10 não fazem parte desta entrega.
 
-- **Scripts em todas as páginas.** O mesmo `app.js` roda em todas; por isso as funções verificam se o elemento existe antes de usá-lo (`querySelector()` devolve `null` quando não encontra). A função `definirTexto()` faz essa verificação.
-- **Cadastro na página de alunos.** O desafio integrador pede lista, busca, filtro e cadastro na mesma página. Como os dados só ficam na memória, o formulário (`#form-aluno`) está em `alunos.html` e também em `aluno-form.html`, que mostra a lista logo abaixo.
-- **Formulário simplificado.** Os campos são `nome`, `email`, `curso` e `status`, os mesmos do objeto `novoAluno`. Os campos de nascimento e observação foram retirados.
-- **Novo id.** O enunciado usa `alunos.length + 1`, mas depois de remover um aluno isso poderia repetir um id. Foi usado o maior id atual + 1 (`gerarProximoId`).
-- **Dashboard dinâmico.** Os números fixos (245, 8...) foram trocados por spans (`#total-alunos` etc.) preenchidos a partir dos arrays. Cada card mostra também os registros ativos (exercício 13).
-- **Experimentos temporários.** Os exercícios que pedem "modificar temporariamente" (38 a 41, 17 a 20) estão documentados em comentários, e o código final mantém a versão mais completa.
-- **Sem estilo inline.** O JavaScript só usa `classList` (`destaque`, `status-ativo`, `status-inativo`, `mensagem-vazia`, `mensagem-sucesso`, `mensagem-erro`); a aparência está no `style.css`. Não foi usado `innerHTML` nem LocalStorage.
+## Testes no Console (exercícios 5 a 29, 47, 53, 61 a 64)
+
+```js
+// 5 a 9
+localStorage.setItem("teste", "Funcionando");
+console.log(localStorage.getItem("teste"));      // Funcionando
+localStorage.removeItem("teste");
+console.log(localStorage.getItem("teste"));      // null
+localStorage.setItem("nomeSistema", "Sistema Acadêmico");
+console.log(localStorage.getItem("nomeSistema")); // continua após F5
+
+// 10 a 16
+const alunoTeste = { id: 1, nome: "Ana Souza", curso: "ADS", status: "ativo" };
+localStorage.setItem("alunoTeste", alunoTeste);
+console.log(localStorage.getItem("alunoTeste")); // [object Object]
+const alunoJSON = JSON.stringify(alunoTeste);
+console.log(typeof alunoJSON);                    // string
+localStorage.setItem("alunoTeste", alunoJSON);
+const alunoObjeto = JSON.parse(localStorage.getItem("alunoTeste"));
+console.log(alunoObjeto.nome);                    // Ana Souza
+
+// 19 a 22
+const alunosTeste = [{ id: 1, nome: "Ana" }, { id: 2, nome: "Carlos" }];
+localStorage.setItem("alunosTeste", JSON.stringify(alunosTeste));
+for (const aluno of JSON.parse(localStorage.getItem("alunosTeste"))) console.log(aluno.nome);
+
+// 26 a 29 (storage.js carregado)
+salvarDados(STORAGE_KEYS.alunos, alunos);
+console.log(carregarDados(STORAGE_KEYS.alunos, []));
+console.log(carregarDados("chave_inexistente", [])); // [] (valor padrão)
+
+// 47: remover e recarregar -> a aplicação volta aos dados iniciais
+removerDados(STORAGE_KEYS.alunos);
+
+// 53 e 55: JSON inválido
+localStorage.setItem(STORAGE_KEYS.alunos, "conteudo invalido"); // F5 -> catch + dados iniciais
+restaurarAlunos();                                              // corrige o que está salvo
+
+// 61 a 64
+sessionStorage.setItem("testeSessao", "ativo");
+console.log(sessionStorage.getItem("testeSessao"));
+localStorage.clear();      // apaga TODAS as chaves
+restaurarTodosDados();     // 64: grava de novo os dados iniciais
+```
 
 ## Respostas
 
-**Ex. 4 - O que o objeto `document` representa?** A página HTML carregada, como árvore de elementos (DOM). É o ponto de entrada para selecionar, criar e alterar elementos.
+**11 - Por que o objeto não foi armazenado adequadamente?** O localStorage só guarda **strings**. Ao receber um objeto, converte-o com `toString()`, resultando em `"[object Object]"`, e os dados se perdem.
 
-**Ex. 9 - `querySelector()` x `querySelectorAll()`:** `querySelector()` devolve só o **primeiro** elemento que corresponde ao seletor (ou `null`); `querySelectorAll()` devolve uma **NodeList com todos** (vazia se não houver nenhum).
+**17 - Serialização:** `JSON.stringify()` (objeto/array -> string JSON).
+**18 - Desserialização:** `JSON.parse()` (string JSON -> objeto/array).
 
-**Ex. 32 - Por que limpar a lista antes de renderizar?** Porque `append()` acrescenta ao que já existe. Sem `textContent = ""`, cada renderização repetiria os cards e a lista ficaria duplicada. A limpeza também remove a mensagem de "nenhum resultado" de uma busca anterior (ex. 64).
+**24 - Por que o prefixo `academico_`?** Todos os sistemas da mesma origem (endereço) compartilham o mesmo localStorage. O prefixo evita que uma chave genérica como `alunos` colida com a de outro sistema e deixa claro a quem cada chave pertence.
 
-**Ex. 41 - O que é `event.target`?** O elemento em que o evento ocorreu (por exemplo, o botão que foi clicado).
+**36 - Por que não salvar `totalAlunos`?** É um valor **derivado**: sai de `alunos.length`. Guardá-lo duplicaria a informação e ele ficaria desatualizado se esquecêssemos de atualizá-lo. É melhor calcular a partir do array a cada vez.
 
-**Ex. 45 - Diferença com `preventDefault()`:** sem ele, o navegador envia o formulário e recarrega a página, e os dados que estavam só na memória são perdidos. Com ele, a página continua aberta e o JavaScript trata o envio.
+**38 - Fluxo do cadastro:** Formulário -> Objeto (`novoAluno`) -> `push()` -> `salvarDados()` -> LocalStorage -> `renderizarAlunos()`.
 
-**Ex. 71 - O aluno foi removido do array?** Não. `elemento.remove()` retira só o elemento da página; o array `alunos` continua com o registro. DOM e dados são coisas separadas (por isso o exercício 72 remove também do array com `splice()` e renderiza de novo).
+**54 - `try...catch`:**
+1. `try` envolve o código que pode dar erro (aqui, `JSON.parse()`).
+2. `catch` recebe o erro e executa um plano B (aqui, registra o erro e devolve o valor padrão).
+3. Sem tratamento, o `JSON.parse()` lançaria `SyntaxError`, o script pararia e a página ficaria sem listas nem dashboard.
 
-### Diagnósticos (78 a 82)
+**59 - Campos que não devem ficar no LocalStorage:** senha (e hash de senha), tokens de acesso/sessão, CPF e documentos, dados bancários e de cartão, e qualquer dado pessoal sensível. O localStorage fica legível no navegador, é acessível a qualquer script da página (inclusive um XSS) e não tem criptografia.
 
-| Ex. | Situação | Resultado |
+**62 - sessionStorage x localStorage:**
+1. Após F5: o `sessionStorage` **permanece** (a mesma aba continua); o localStorage também.
+2. Após fechar a aba: o `sessionStorage` é **apagado**; o localStorage permanece.
+3. O mais adequado aqui é o **localStorage**, pois os registros devem continuar disponíveis mesmo depois de fechar o navegador.
+
+**65 - Por que `removeItem()` é mais seguro que `clear()`?** `removeItem()` apaga apenas a chave informada. `clear()` apaga **todas** as chaves da origem, inclusive as de outros sistemas e configurações, sem possibilidade de desfazer.
+
+**69 - A busca deveria alterar os dados persistidos?** Não. Busca só muda **o que aparece** na tela; os registros continuam os mesmos. Salvar a cada letra digitada seria desperdício e poderia gravar uma lista filtrada no lugar da completa.
+
+**71 - Regra de persistência:** Cadastro -> salvar; Remoção -> salvar; Alteração -> salvar; Busca -> não salvar; Filtro -> não salvar.
+
+**73 - Teste de IDs:** com ids 1, 2 e 3, remover o 2 e cadastrar de novo gera o id **4** (maior id + 1 = 3 + 1). Com `length + 1` o novo aluno receberia o id 3, **duplicado**.
+
+### Ordem dos scripts (exercício 4)
+
+`dados.js` -> `storage.js` -> `app.js`. O `app.js` executa logo no início `carregarDados(STORAGE_KEYS.alunos, alunosIniciais)`, que depende de `alunosIniciais` (do `dados.js`) e de `carregarDados` e `STORAGE_KEYS` (do `storage.js`). O `storage.js` também usa o que o `dados.js` define quando restauramos. O navegador executa os scripts na ordem em que aparecem; invertida, daria `ReferenceError: ... is not defined`.
+
+### Diagnósticos (77 a 81)
+
+| Ex. | Situação | Problema |
 |---|---|---|
-| 78 | `querySelector("#titulo-inexistente")` e depois `.textContent = ...` | O seletor devolve `null`, e atribuir `textContent` a `null` gera `TypeError: Cannot set properties of null`. Verificar com `console.log(titulo)` e testar `if (titulo !== null)`. |
-| 79 | `renderizarAlunos(alunos)` duas vezes sem limpar | Cada aluno aparece duas vezes na tela, porque `append()` só acrescenta. |
-| 80 | `submit` sem `preventDefault()` | A página é recarregada/navega, a mensagem "Salvando" some do console e os dados em memória se perdem. |
-| 81 | `addEventListener("clic", salvar)` | `"clic"` não é um evento existente: não há erro, mas a função nunca é chamada. O correto é `"click"`. |
-| 82 | `querySelector(".card")` com dez cards | Retorna **1** elemento (o primeiro). Para obter todos: `querySelectorAll(".card")`. |
+| 77 | `localStorage.setItem("alunos", alunos)` | O array é convertido em texto (`"[object Object],..."`) e os dados se perdem. Falta o `JSON.stringify(alunos)`. |
+| 78 | `getItem("alunos")` e depois `alunos.push(...)` | `getItem()` devolve uma **string** (ou `null`), e string não tem `push()`: dá `TypeError`. Falta o `JSON.parse()`. |
+| 79 | `JSON.parse("texto inválido")` | Lança `SyntaxError` e interrompe o script, a menos que esteja em `try...catch`. |
+| 80 | Salvar em `"academico_alunos"` e ler `"academico_aluno"` | Chaves diferentes: `getItem()` devolve `null` e a aplicação cai nos dados iniciais, como se nada tivesse sido salvo. Constantes (`STORAGE_KEYS`) evitam isso. |
+| 81 | `push()` e `renderizarAlunos()` sem `salvarDados()` | O aluno aparece na tela, mas só existe na memória: após F5 ele desaparece. |
 
-### Questões teóricas (83)
+## Questões teóricas (82)
 
-1. **DOM:** *Document Object Model*, a representação da página como uma árvore de objetos que o JavaScript pode ler e modificar.
-2. **`document`:** objeto que representa a página inteira e oferece métodos para selecionar e criar elementos.
-3. **`querySelector()` x `querySelectorAll()`:** primeiro elemento x todos os elementos (ver exercício 9).
-4. **`textContent`:** lê ou altera o texto de um elemento, tratando o conteúdo como texto puro.
-5. **`value`:** o valor atual de um campo de formulário (o que o usuário digitou ou selecionou).
-6. **`classList`:** permite adicionar (`add`), remover (`remove`), alternar (`toggle`) e verificar (`contains`) classes CSS de um elemento.
-7. **`createElement()`:** cria um novo elemento HTML na memória (por exemplo, `document.createElement("p")`).
-8. **Criar x adicionar ao DOM:** o elemento criado existe só na memória e não aparece; ele só é exibido depois de inserido em um elemento da página, com `append()`.
-9. **`append()`:** insere um ou mais elementos (ou textos) no final de outro elemento.
-10. **`remove()`:** retira o elemento da página (do DOM).
-11. **Evento:** algo que acontece na página, como um clique, a digitação, a escolha de uma opção ou o envio de um formulário.
-12. **`addEventListener()`:** registra uma função que será executada quando um tipo de evento ocorrer em um elemento.
-13. **`event.target`:** o elemento que originou o evento.
-14. **`preventDefault()`:** cancela o comportamento padrão do navegador para o evento (por exemplo, o envio e o recarregamento do formulário).
-15. **`input` x `change`:** `input` dispara a cada alteração do campo (a cada letra digitada); `change` dispara quando o valor é confirmado (ao escolher outra opção de um `select` ou ao sair do campo).
-16. **Limpar antes de renderizar:** para não duplicar os registros na tela (ver exercício 32).
-17. **Vantagem de separar em funções:** reutilizar código, facilitar testes e manutenção e deixar o programa mais legível.
-18. **Classes CSS em vez de estilos inline:** mantém a aparência no CSS (um único lugar), facilita a manutenção, permite reaproveitar estilos e deixa o JavaScript só com a lógica.
-19. **`textContent` com textos do usuário:** ele insere o conteúdo como texto, nunca como HTML. Assim, algo como `<b>x</b>` aparece literalmente, sem criar elementos nem executar código indesejado (evita injeção de HTML).
-20. **Por que os dados somem ao recarregar:** os arrays ficam apenas na memória da página; ao recarregar, o navegador executa o `dados.js` de novo e os valores voltam ao estado original. Para manter os dados seria preciso um armazenamento permanente (LocalStorage ou servidor), que será visto depois.
+1. **Persistência:** manter os dados disponíveis depois que a página é recarregada ou fechada.
+2. **Web Storage:** API do navegador para guardar pares chave/valor (strings) no computador do usuário; tem `localStorage` e `sessionStorage`.
+3. **LocalStorage x SessionStorage:** o localStorage permanece até ser apagado; o sessionStorage dura só enquanto a aba está aberta.
+4. **JSON:** *JavaScript Object Notation*, formato de texto para representar objetos e listas.
+5. **`JSON.stringify()`:** converte objeto/array em string JSON.
+6. **`JSON.parse()`:** converte string JSON em objeto/array.
+7. **Serialização:** transformar um objeto ou array em texto para guardar ou transmitir.
+8. **Desserialização:** o caminho inverso: reconstruir o objeto ou array a partir do texto.
+9. **`setItem(chave, valor)`:** grava (ou substitui) o valor da chave.
+10. **`getItem(chave)`:** lê o valor da chave, sempre como string.
+11. **`removeItem(chave)`:** apaga uma chave específica.
+12. **Risco do `clear()`:** apaga todas as chaves da origem, inclusive as de outros sistemas, sem volta.
+13. **`getItem()` sem a chave:** devolve `null`; por isso `carregarDados()` testa `!dados` e devolve o valor padrão.
+14. **Constantes para as chaves:** evitam erros de digitação (ex. 80) e deixam a manutenção num único lugar.
+15. **Busca e filtro não persistem:** só mudam a visualização, não os dados (ex. 69).
+16. **Dashboard sem salvar:** os totais são calculados dos arrays (ex. 36).
+17. **`try...catch`:** trata erros sem interromper o programa (ex. 54).
+18. **LocalStorage x banco de dados:** limite de cerca de 5 MB, só strings, sem consultas, relacionamentos, controle de acesso, backup ou compartilhamento entre usuários/dispositivos; os dados ficam só naquele navegador e podem ser apagados pelo usuário.
+19. **Senhas no LocalStorage:** fica legível por qualquer script da página e por quem usa o computador, sem criptografia; um ataque de XSS leria tudo (ex. 59).
+20. **Função do `storage.js`:** concentrar o acesso ao LocalStorage (chaves, salvar, carregar e remover), deixando o `app.js` só com a lógica da aplicação.
+
+## Fluxos (84 e 85)
+
+**Cadastro:** `submit` -> `preventDefault()` -> objeto -> `push()` -> `JSON.stringify()` (dentro de `salvarDados`) -> LocalStorage -> `renderizarAlunos()` -> interface atualizada.
+
+**Inicialização:** página carregada -> `localStorage.getItem()` -> `JSON.parse()` (dentro de `carregarDados`) -> array -> `inicializarAplicacao()` renderiza as listas -> dashboard.
