@@ -1,0 +1,424 @@
+/* ==========================================================
+   Sistema de Gerenciamento Acadêmico
+   Arquivo: css/style.css
+   Disciplina: Programação Web I
+   Aula 04 (CSS3) + Aula 05 (Flexbox) + Atividade de CSS Grid
+
+   Organização do arquivo:
+   1. Configurações gerais
+   2. Tipografia
+   3. Cabeçalho e navegação
+   4. Conteúdo, cards e Grid
+   5. Formulários
+   6. Botões
+   7. Rodapé
+   ========================================================== */
+
+
+/* ==========================================================
+   1. CONFIGURAÇÕES GERAIS
+   ========================================================== */
+
+/* Seletor UNIVERSAL.
+   box-sizing: border-box -> a largura (width) passa a incluir
+   conteúdo + padding + border, evitando estouros em formulários. */
+* {
+  box-sizing: border-box;
+}
+
+/* HERANÇA: font-family e color definidos aqui são herdados por
+   todos os elementos dentro do body (títulos, parágrafos, links...).
+   margin: 0 remove a margem padrão de 8px aplicada pelo navegador. */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #222222;
+  background-color: #f5f5f5;
+}
+
+
+/* ==========================================================
+   2. TIPOGRAFIA
+   ========================================================== */
+
+/* AGRUPAMENTO de seletores: uma única regra para três elementos */
+h1,
+h2,
+h3 {
+  font-family: Arial, sans-serif;
+}
+
+
+/* ==========================================================
+   3. CABEÇALHO E NAVEGAÇÃO
+   ========================================================== */
+
+header {
+  background-color: #003366;
+  color: white;
+  padding: 24px;
+}
+
+/* FLEXBOX NO CABEÇALHO (Aula 05)
+   .cabecalho é o Flex Container; h1 e span são os Flex Items.
+   justify-content: space-between -> título à esquerda e
+                                     informação à direita (extremidades)
+   align-items: center            -> alinhamento vertical centralizado
+   Continua em Flexbox: são apenas dois itens em uma linha. */
+.cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 {
+  margin: 0;
+}
+
+nav {
+  background-color: #eeeeee;
+  padding: 12px;
+}
+
+/* FLEXBOX NO MENU (Aula 05)
+   O ul vira Flex Container e os li viram Flex Items (lado a lado).
+   gap substitui o antigo "nav li { display: inline; margin-right: 16px; }"
+   (comportamento antigo removido).
+
+   ATIVIDADE 13 - O menu CONTINUA em Flexbox (não foi trocado por Grid):
+   é um layout UNIDIMENSIONAL, apenas uma linha de itens. O Flexbox
+   distribui os itens em um único eixo e se adapta ao tamanho do texto
+   de cada link. Grid, que organiza linhas E colunas, seria
+   desnecessário aqui. */
+nav ul {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Seletor DESCENDENTE: atinge apenas os links (a) dentro de nav */
+nav a {
+  color: #003366;
+  text-decoration: none;
+}
+
+
+/* ==========================================================
+   4. CONTEÚDO, CARDS E GRID
+   ========================================================== */
+
+main {
+  padding: 24px;
+}
+
+/* O .card é reutilizado em todas as páginas (dashboard e listagens).
+   Na Aula 05 ele tinha "flex: 1 1 250px"; agora ele é Grid Item e a
+   largura é definida pelas colunas do contêiner, por isso o "flex" foi
+   removido (não tem efeito fora de um Flex Container). O espaçamento
+   entre cards é feito pelo gap do contêiner. */
+.card {
+  background-color: white;
+  border: 1px solid #dddddd;
+  padding: 20px;
+}
+
+/* ----------------------------------------------------------
+   CSS GRID - DASHBOARD (index.html)
+
+   ATIVIDADE 1 - Identificação:
+   - Grid Container: .dashboard-grid (display: grid)
+   - Grid Items:     os 4 cards (Alunos, Cursos, Matrículas, Usuários)
+   - Colunas:        4 colunas iguais
+
+   ATIVIDADE 3 - repeat(4, 1fr):
+   - repeat(4, 1fr) repete a definição "1fr" quatro vezes
+     (equivale a escrever: 1fr 1fr 1fr 1fr).
+   - 1fr = uma fração do espaço livre do contêiner (largura total
+     menos os gaps).
+   - Os cards têm a mesma largura porque todas as colunas valem 1fr,
+     ou seja, recebem frações iguais do espaço.
+
+   ATIVIDADE 4 - Testes de colunas (alterar e recarregar a página):
+   - repeat(2, 1fr) -> 2 colunas: cards em 2 linhas, mais largos.
+   - repeat(4, 1fr) -> 4 colunas: cards lado a lado, mais estreitos.
+
+   ATIVIDADE 5 - Testes de proporção (temporário):
+   - 2fr 1fr -> a 1ª coluna recebe o DOBRO da largura da 2ª (2/3 e 1/3).
+   - 1fr 1fr -> as duas colunas têm larguras iguais (1/2 e 1/2).
+
+   ATIVIDADE 6 - gap: 16px e depois 32px.
+   Altera o ESPAÇO ENTRE os cards (vertical e horizontal), sem mudar
+   o padding interno dos cards.
+
+   ATIVIDADE 7 - Testes (temporário):
+   - row-gap: 24px    -> espaço vertical entre as linhas
+   - column-gap: 12px -> espaço horizontal entre as colunas
+   (gap é o atalho para row-gap + column-gap.)
+   ---------------------------------------------------------- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+/* ATIVIDADE 8 - Card em destaque (aplicado ao card Alunos):
+   span 2 = "ocupe 2 colunas" a partir da posição em que o card
+   for colocado automaticamente.
+
+   ATIVIDADE 9 - Teste (temporário): grid-column: 1 / 3;
+   - span 2 é RELATIVO: conta duas colunas a partir de onde o item cai.
+   - 1 / 3 usa LINHAS DE GRADE: o item começa na linha 1 e termina na
+     linha 3 (ocupa as colunas 1 e 2). É uma posição ABSOLUTA.
+   Com 4 colunas existem 5 linhas de grade (1 a 5). No card Alunos, que
+   é o primeiro, o resultado visual é o mesmo; em outro card, "1 / 3"
+   forçaria o início na coluna 1 e poderia deixar espaços vazios. */
+.card-destaque {
+  grid-column: span 2;
+}
+
+/* ----------------------------------------------------------
+   CSS GRID - LISTAGENS (ATIVIDADES 10 e 11)
+   Mesma classe reutilizada em cursos, alunos, matrículas e usuários.
+   - Grid Container: .lista-grid | Grid Items: os .card
+   - 3 colunas iguais com 16px de espaço entre os cards.
+   ---------------------------------------------------------- */
+.lista-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* Área de avisos (página inicial) */
+.aviso {
+  background-color: #fff8dc;
+  border: 1px solid #e5d59b;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+/* Seletor de ID (uso único) combinado com seletor descendente:
+   estiliza apenas o h2 dentro de #dashboard. */
+#dashboard h2 {
+  color: #003366;
+}
+
+/* ESPECIFICIDADE:
+   Um parágrafo dentro de <article class="card"> é alcançado pelas
+   duas regras abaixo.
+     article p  ->  2 elementos            (peso menor)
+     .card p    ->  1 classe + 1 elemento  (peso maior)
+   Prevalece ".card p" (#222222), pois a classe pesa mais que o
+   elemento. Se o article NÃO tiver a classe .card, vale #444444. */
+article p {
+  color: #444444;
+}
+
+.card p {
+  color: #222222;
+}
+
+
+/* ==========================================================
+   5. FORMULÁRIOS
+   ========================================================== */
+
+form {
+  background-color: white;
+  padding: 24px;
+  border: 1px solid #dddddd;
+}
+
+fieldset {
+  border: 1px solid #cccccc;
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+legend {
+  font-weight: bold;
+  color: #003366;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+/* AGRUPAMENTO de seletores: width, padding, margin e border */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 16px;
+  border: 1px solid #cccccc;
+}
+
+textarea {
+  min-height: 100px;
+}
+
+/* Radio e checkbox não devem ocupar 100% da largura.
+   Seletor de atributo (mais específico que "input"), por isso
+   sobrescreve a regra acima. */
+input[type="radio"],
+input[type="checkbox"] {
+  width: auto;
+  margin: 0 6px 0 0;
+}
+
+/* Rótulo de opção (radio/checkbox): ao lado do campo, sem negrito.
+   A classe (.opcao) é mais específica que "label" e vence a regra
+   "label" definida acima. */
+.opcao {
+  display: inline-block;
+  font-weight: normal;
+  margin-right: 16px;
+}
+
+
+/* ==========================================================
+   6. BOTÕES
+   ========================================================== */
+
+button {
+  padding: 10px 16px;
+  border: 1px solid #003366;
+  background-color: #003366;
+  color: white;
+}
+
+/* CASCATA: esta regra vem DEPOIS de "button" e, por ser classe,
+   também tem maior especificidade; troca as cores do botão Limpar. */
+.botao-secundario {
+  background-color: white;
+  color: #003366;
+}
+
+/* FLEXBOX NOS BOTÕES (Aula 05)
+   Flex Container: .acoes | Flex Items: os botões Salvar e Limpar
+   justify-content: flex-end -> botões alinhados à direita
+   gap: 12px                 -> espaço entre os botões
+
+   ATIVIDADE 14 - A classe .acoes CONTINUA em Flexbox. A área é
+   UNIDIMENSIONAL: os botões ficam em uma única linha (eixo
+   horizontal), alinhados à direita. Não há linhas e colunas para
+   organizar, então Grid não é necessário. */
+.acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Links de cadastro (Novo Aluno, Novo Curso...) com aparência de botão */
+.link-acao {
+  display: inline-block;
+  background-color: #003366;
+  color: white;
+  padding: 10px 16px;
+  text-decoration: none;
+  margin-bottom: 16px;
+}
+
+
+/* ==========================================================
+   7. RODAPÉ
+   ========================================================== */
+
+footer {
+  background-color: #003366;
+  color: white;
+  padding: 16px;
+  text-align: center;
+}
+
+
+/* ==========================================================
+   8. DOM (AULA 10) - CLASSES USADAS PELO JAVASCRIPT
+   O JavaScript apenas adiciona/remove estas classes com
+   classList; a aparência continua definida aqui, no CSS
+   externo (nada de estilos inline pelo JavaScript).
+   ========================================================== */
+
+/* Exercício 16: realce usado com classList.add/remove/toggle */
+.destaque {
+  border: 2px solid currentColor;
+  font-weight: bold;
+}
+
+/* Exercício 69: classes de status */
+.status-ativo {
+  font-weight: bold;
+}
+
+.status-inativo {
+  opacity: 0.7;
+}
+
+/* Mensagem de "nenhum resultado" (ocupa todas as colunas da grade) */
+.mensagem-vazia {
+  grid-column: 1 / -1;
+  background-color: #fff8dc;
+  border: 1px solid #e5d59b;
+  padding: 16px;
+  margin: 0;
+}
+
+/* Mensagens do formulário (exercício 76: classes em vez de style) */
+.mensagem-sucesso {
+  background-color: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  color: #1b5e20;
+  padding: 12px;
+  margin: 16px 0 0 0;
+}
+
+.mensagem-erro {
+  background-color: #fdecea;
+  border: 1px solid #f5c2c0;
+  color: #b71c1c;
+  padding: 12px;
+  margin: 16px 0 0 0;
+}
+
+/* Busca + filtro + botão (Grid de 3 colunas) */
+.filtros {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+  background-color: white;
+  border: 1px solid #dddddd;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.filtros input,
+.filtros select {
+  margin-bottom: 0;
+}
+
+.resumo {
+  margin-bottom: 16px;
+}
+
+/* Botões dentro dos cards (Ver detalhes / Remover) */
+.card .acoes {
+  margin-top: 12px;
+  justify-content: flex-start;
+}
+
+/* Área de detalhes do aluno */
+#detalhes-aluno {
+  background-color: white;
+  border: 1px solid #dddddd;
+  padding: 20px;
+}
+
+/* Espaço entre seções consecutivas dentro do main */
+main section + section {
+  margin-top: 24px;
+}
