@@ -1,16 +1,19 @@
 // ============================================================
-// dados.js - DADOS do Sistema de Gerenciamento Acadêmico
+// dados.js - DADOS INICIAIS do Sistema de Gerenciamento Acadêmico
 //
-// Este arquivo contém SOMENTE os dados de exemplo:
-// alunos, cursosCadastrados, matriculas e usuarios.
+// Este arquivo contém SOMENTE os dados iniciais (valores padrão):
+// alunosIniciais, cursosIniciais, matriculasIniciais e usuariosIniciais.
 // Nenhuma lógica (funções, laços, condições) deve ficar aqui.
 //
-// IMPORTANTE: este arquivo precisa ser carregado ANTES do app.js,
-// pois o app.js usa estes arrays.
+// Os dados "de verdade" ficam no LocalStorage (ver storage.js). Estes
+// arrays só são usados quando ainda não há nada salvo, ou quando o
+// usuário pede para restaurar os dados iniciais.
+//
+// ORDEM DE CARREGAMENTO: dados.js -> storage.js -> app.js
 // ============================================================
 
 // Alunos (exercício 30)
-const alunos = [
+const alunosIniciais = [
   {
     id: 1,
     nome: "Ana Souza",
@@ -32,7 +35,7 @@ const alunos = [
 ];
 
 // Cursos (exercício 49)
-const cursosCadastrados = [
+const cursosIniciais = [
   {
     id: 1,
     sigla: "ADS",
@@ -54,7 +57,7 @@ const cursosCadastrados = [
 ];
 
 // Matrículas (exercício 36)
-const matriculas = [
+const matriculasIniciais = [
   {
     numero: "2026001",
     aluno: "Ana Souza",
@@ -76,7 +79,7 @@ const matriculas = [
 ];
 
 // Usuários (exercício 40)
-const usuarios = [
+const usuariosIniciais = [
   {
     id: 1,
     nome: "Administrador",

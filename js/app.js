@@ -1,48 +1,52 @@
 // ============================================================
 // app.js - LÓGICA e INTERFACE do Sistema de Gerenciamento Acadêmico
-// Atividade Prática - Aula 10 (JavaScript + DOM + eventos)
+// Atividade Prática - Aula 11 (Persistência com LocalStorage)
 //
-// Os DADOS ficam no dados.js (alunos, cursosCadastrados, matriculas
-// e usuarios), carregado antes deste arquivo. Aqui ficam as funções
-// que leem esses dados e atualizam a página (DOM).
+// Ordem de carregamento: dados.js -> storage.js -> app.js
+//   - dados.js   : dados iniciais (alunosIniciais, cursosIniciais...)
+//   - storage.js : STORAGE_KEYS, salvarDados(), carregarDados(), removerDados()
+//   - app.js     : este arquivo, que usa os dois anteriores
 //
 // Este mesmo arquivo é carregado em TODAS as páginas. Como cada página
 // tem elementos diferentes, as funções verificam se o elemento existe
-// antes de usá-lo: querySelector() devolve null quando não encontra
-// (veja o diagnóstico do exercício 78 mais abaixo).
+// antes de usá-lo (querySelector() devolve null quando não encontra).
 //
-// Os números entre parênteses indicam o exercício do enunciado.
-// O código da Aula 09 foi preservado em js/exercicios-aula09.js.
+// REGRA DE PERSISTÊNCIA (exercício 71)
+//   Cadastro -> salvar | Remoção -> salvar | Alteração -> salvar
+//   Busca    -> NÃO salvar | Filtro -> NÃO salvar
+//
+// Blocos: Inicialização, Dashboard, Alunos, Cursos, Matrículas,
+//         Usuários, Eventos.
 // ============================================================
 
 
 // ------------------------------------------------------------
-// CONFIGURAÇÃO INICIAL
+// INICIALIZAÇÃO
 // ------------------------------------------------------------
 
-// (3) Confirmar o carregamento do JavaScript
-console.log(
-  "Aula 10 - DOM iniciado."
-);
+console.log("Aula 11 - Persistência iniciada.");
+
+// (31) a (34) Os dados vêm do LocalStorage; se não houver nada salvo
+// (ou se estiver corrompido), valem os dados iniciais do dados.js.
+let alunos = carregarDados(STORAGE_KEYS.alunos, alunosIniciais);
+let cursos = carregarDados(STORAGE_KEYS.cursos, cursosIniciais);
+let matriculas = carregarDados(STORAGE_KEYS.matriculas, matriculasIniciais);
+let usuarios = carregarDados(STORAGE_KEYS.usuarios, usuariosIniciais);
 
 // Elementos usados em eventos. Em páginas que não os possuem, o valor é null.
-// (38) botão de atualização, (43) formulário, (55) busca, (60) filtro
 const botaoAtualizar = document.querySelector("#btn-atualizar");
+const btnRestaurar = document.querySelector("#btn-restaurar-alunos");
 const formularioAluno = document.querySelector("#form-aluno");
+const formularioCurso = document.querySelector("#form-curso");
+const formularioMatricula = document.querySelector("#form-matricula");
+const formularioUsuario = document.querySelector("#form-usuario");
 const campoBusca = document.querySelector("#busca");
 const filtroStatus = document.querySelector("#filtro-status");
 
 // Guarda o id do aluno que está na área de detalhes (ou null)
 let alunoEmDetalhe = null;
 
-
-// ------------------------------------------------------------
-// FUNÇÕES AUXILIARES (reutilizadas em várias partes)
-// ------------------------------------------------------------
-
 // Altera o texto de um elemento, se ele existir na página.
-// (a versão do enunciado, com .querySelector().textContent direto, gera
-// erro nas páginas que não têm o elemento - ver exercício 78)
 function definirTexto(seletor, valor) {
   const elemento = document.querySelector(seletor);
 
@@ -54,7 +58,7 @@ function definirTexto(seletor, valor) {
 }
 
 // Cria um elemento com texto e, opcionalmente, uma classe CSS.
-// (77) textContent + createElement: seguro para textos digitados pelo usuário.
+// textContent trata o texto como texto puro (seguro contra injeção de HTML).
 function criarElementoComTexto(tag, texto, classe) {
   const elemento = document.createElement(tag);
   elemento.textContent = texto;
@@ -66,7 +70,7 @@ function criarElementoComTexto(tag, texto, classe) {
   return elemento;
 }
 
-// (69) Escolhe a classe CSS conforme o status
+// Escolhe a classe CSS conforme o status
 function classeDoStatus(status) {
   if (status === "ativo" || status === "ativa") {
     return "status-ativo";
@@ -74,110 +78,56 @@ function classeDoStatus(status) {
   return "status-inativo";
 }
 
-// Gera o próximo id. O enunciado usa alunos.length + 1 (exercício 48),
-// mas depois de remover um aluno isso poderia repetir um id existente.
-// Por isso usamos o maior id atual + 1.
-function gerarProximoId(lista) {
+// (72) Novo ID seguro: maior id atual + 1 (e não length + 1, que poderia
+// repetir um id depois de uma remoção). Por padrão usa a lista de alunos;
+// cursos e usuários passam a própria lista.
+function gerarNovoId(lista = alunos) {
+  if (lista.length === 0) {
+    return 1;
+  }
+
   const ids = lista.map((item) => item.id);
-  return Math.max(0, ...ids) + 1;
+  return Math.max(...ids) + 1;
 }
 
+// Mensagem de retorno do formulário (classes CSS, sem estilo inline)
+function exibirMensagemFormulario(texto, tipo) {
+  const area = document.querySelector("#mensagem-form");
 
-// ------------------------------------------------------------
-// FUNÇÕES DA AULA 09 (reaproveitadas com os mesmos arrays)
-// ------------------------------------------------------------
-
-function contarMatriculasAtivas(listaMatriculas) {
-  const ativas = listaMatriculas.filter((matricula) => {
-    return matricula.status === "ativa";
-  });
-  return ativas.length;
-}
-
-function filtrarAlunosPorStatus(listaAlunos, status) {
-  return listaAlunos.filter((aluno) => aluno.status === status);
-}
-
-function buscarAlunoPorId(listaAlunos, id) {
-  return listaAlunos.find((aluno) => aluno.id === id);
-}
-
-function obterNomesAlunos(listaAlunos) {
-  return listaAlunos.map((aluno) => aluno.nome);
-}
-
-function buscarCursoPorSigla(listaCursos, sigla) {
-  return listaCursos.find((curso) => curso.sigla === sigla);
-}
-
-function contarRegistros(lista) {
-  return lista.length;
-}
-
-
-// ------------------------------------------------------------
-// EXPLORAÇÃO DO DOM (exercícios 3 a 22)
-// ------------------------------------------------------------
-
-// Executada em todas as páginas
-function explorarDocumento() {
-  // (4) document representa a página carregada: a raiz da árvore DOM,
-  // por onde o JavaScript acessa e modifica todos os elementos.
-  console.log(document);
-
-  // (5) Selecionar o título principal pelo id
-  const titulo = document.querySelector("#titulo-sistema");
-  console.log(titulo);
-
-  // (6) Alterar o título
-  if (titulo !== null) {
-    titulo.textContent = "Sistema Acadêmico - 2026";
+  if (area === null) {
+    return;
   }
 
-  // (14) Consultar um atributo e (15) adicionar um title
-  const linkAlunos = document.querySelector("#link-alunos");
-
-  if (linkAlunos !== null) {
-    console.log(linkAlunos.getAttribute("href"));
-    linkAlunos.setAttribute("title", "Acessar cadastro de alunos");
-  }
+  area.textContent = "";
+  area.append(
+    criarElementoComTexto("p", texto, tipo === "erro" ? "mensagem-erro" : "mensagem-sucesso")
+  );
 }
 
-// Executada apenas no index.html (onde existe o Dashboard)
-function explorarCardsDoDashboard() {
-  // (7) querySelector() devolve APENAS o primeiro elemento encontrado
-  const card = document.querySelector(".card");
-  console.log(card);
+// (66) Desenha tudo o que a página atual possuir, a partir dos arrays.
+function inicializarAplicacao() {
+  renderizarAlunos(alunos);
+  renderizarCursos(cursos);
+  renderizarMatriculas(matriculas);
+  renderizarUsuarios(usuarios);
+  atualizarDashboard();
+  preencherSelectAlunos();
+}
 
-  // (8) querySelectorAll() devolve TODOS (uma NodeList)
-  const cards = document.querySelectorAll(".card");
-  console.log(cards);
+// (64) Restaura os quatro conjuntos de dados iniciais (usado, por exemplo,
+// depois do teste de localStorage.clear()). Pode ser chamada no console.
+function restaurarTodosDados() {
+  alunos = [...alunosIniciais];
+  cursos = [...cursosIniciais];
+  matriculas = [...matriculasIniciais];
+  usuarios = [...usuariosIniciais];
 
-  // (9) Percorrer os cards
-  cards.forEach((cardAtual) => {
-    console.log(cardAtual);
-  });
+  salvarDados(STORAGE_KEYS.alunos, alunos);
+  salvarDados(STORAGE_KEYS.cursos, cursos);
+  salvarDados(STORAGE_KEYS.matriculas, matriculas);
+  salvarDados(STORAGE_KEYS.usuarios, usuarios);
 
-  // (17) a (20) classList: add, remove, toggle e contains
-  const primeiroCard = document.querySelector(".card");
-
-  primeiroCard.classList.add("destaque");
-  console.log("Após add:", primeiroCard.classList.contains("destaque"));       // true
-
-  primeiroCard.classList.remove("destaque");
-  console.log("Após remove:", primeiroCard.classList.contains("destaque"));    // false
-
-  primeiroCard.classList.toggle("destaque"); // liga de novo
-  const resultado = primeiroCard.classList.contains("destaque");
-  console.log("Após toggle:", resultado);                                      // true
-  // O card fica em destaque; cada toggle() inverte o estado atual.
-
-  // (21) Criar elemento com createElement() e (22) adicioná-lo com append()
-  const paragrafo = document.createElement("p");
-  paragrafo.textContent = "Novo conteúdo criado via JavaScript.";
-
-  const main = document.querySelector("main");
-  main.append(paragrafo);
+  inicializarAplicacao();
 }
 
 
@@ -185,29 +135,19 @@ function explorarCardsDoDashboard() {
 // DASHBOARD
 // ------------------------------------------------------------
 
-// (10) a (12) Totais, lidos dos arrays da Aula 09.
-// Os 4 spans (#total-...) existem no index.html; em outras páginas
-// apenas os que existirem são atualizados.
+// (35) e (36) Os totais são CALCULADOS a partir dos arrays carregados do
+// LocalStorage. Por isso não é preciso salvar "totalAlunos": um valor
+// derivado ficaria duplicado e poderia ficar desatualizado.
 function atualizarDashboard() {
   definirTexto("#total-alunos", alunos.length);
-  definirTexto("#total-cursos", cursosCadastrados.length);
+  definirTexto("#total-cursos", cursos.length);
   definirTexto("#total-matriculas", matriculas.length);
   definirTexto("#total-usuarios", usuarios.length);
 
-  atualizarDashboardAtivos();
-}
-
-// (13) Segunda versão: apenas registros ATIVOS (usa filter())
-function atualizarDashboardAtivos() {
-  const alunosAtivos = filtrarAlunosPorStatus(alunos, "ativo");
-  const cursosAtivos = cursosCadastrados.filter((curso) => curso.ativo);
-  const matriculasAtivas = matriculas.filter((matricula) => matricula.status === "ativa");
-  const usuariosAtivos = usuarios.filter((usuario) => usuario.status === "ativo");
-
-  definirTexto("#ativos-alunos", alunosAtivos.length);
-  definirTexto("#ativos-cursos", cursosAtivos.length);
-  definirTexto("#ativos-matriculas", matriculasAtivas.length);
-  definirTexto("#ativos-usuarios", usuariosAtivos.length);
+  definirTexto("#ativos-alunos", alunos.filter((aluno) => aluno.status === "ativo").length);
+  definirTexto("#ativos-cursos", cursos.filter((curso) => curso.ativo).length);
+  definirTexto("#ativos-matriculas", matriculas.filter((m) => m.status === "ativa").length);
+  definirTexto("#ativos-usuarios", usuarios.filter((u) => u.status === "ativo").length);
 }
 
 
@@ -215,41 +155,36 @@ function atualizarDashboardAtivos() {
 // ALUNOS
 // ------------------------------------------------------------
 
-// (24) a (30) Criar o card de um aluno com DOM e devolvê-lo.
-// Criar o elemento NÃO o coloca na página: ele só aparece depois
-// de ser adicionado ao DOM com append() (ver renderizarAlunos).
+// Cria o card de um aluno com DOM e o devolve (só aparece após append()).
 function criarCardAluno(aluno) {
   const cardAluno = document.createElement("article");
   cardAluno.classList.add("card");
 
-  // (25) nome
-  const nome = document.createElement("h3");
-  nome.textContent = aluno.nome;
+  cardAluno.append(criarElementoComTexto("h3", aluno.nome));
+  cardAluno.append(criarElementoComTexto("p", `Curso: ${aluno.curso}`));
+  cardAluno.append(
+    criarElementoComTexto("p", `Status: ${aluno.status}`, classeDoStatus(aluno.status))
+  );
 
-  // (26) curso
-  const curso = document.createElement("p");
-  curso.textContent = `Curso: ${aluno.curso}`;
-
-  // (30) status, com a classe CSS adequada (69)
-  const status = document.createElement("p");
-  status.textContent = `Status: ${aluno.status}`;
-  status.classList.add(classeDoStatus(aluno.status));
-
-  // (27) montar o card
-  cardAluno.append(nome);
-  cardAluno.append(curso);
-  cardAluno.append(status);
-
-  // (65) e (66) botão "Ver detalhes"
+  // Botão "Ver detalhes"
   const botaoDetalhes = document.createElement("button");
   botaoDetalhes.type = "button";
   botaoDetalhes.textContent = "Ver detalhes";
   botaoDetalhes.addEventListener("click", () => {
-    console.log(aluno.nome);
     exibirDetalhesAluno(aluno);
   });
 
-  // (70) a (72) botão "Remover"
+  // (42) a (45) Botão que alterna o status (ativo <-> inativo)
+  const botaoStatus = document.createElement("button");
+  botaoStatus.type = "button";
+  botaoStatus.classList.add("botao-secundario");
+  const novoStatus = aluno.status === "ativo" ? "inativo" : "ativo";
+  botaoStatus.textContent = novoStatus === "inativo" ? "Inativar" : "Ativar";
+  botaoStatus.addEventListener("click", () => {
+    alterarStatusAluno(aluno.id, novoStatus);
+  });
+
+  // Botão "Remover"
   const botaoRemover = document.createElement("button");
   botaoRemover.type = "button";
   botaoRemover.classList.add("botao-secundario");
@@ -260,13 +195,13 @@ function criarCardAluno(aluno) {
 
   const acoes = document.createElement("div");
   acoes.classList.add("acoes");
-  acoes.append(botaoDetalhes, botaoRemover);
+  acoes.append(botaoDetalhes, botaoStatus, botaoRemover);
   cardAluno.append(acoes);
 
   return cardAluno;
 }
 
-// (31) a (33) Renderizar uma lista de alunos
+// Renderizar uma lista de alunos
 function renderizarAlunos(listaAlunos) {
   const listaAlunosElemento = document.querySelector("#lista-alunos");
 
@@ -274,17 +209,13 @@ function renderizarAlunos(listaAlunos) {
     return;
   }
 
-  // (32) Limpar ANTES de renderizar. Sem isso, cada chamada acrescentaria
-  // os cards de novo, duplicando os registros na tela (exercício 79).
-  // Também remove a mensagem de "nenhum resultado" de uma busca anterior (64).
+  // Limpar ANTES de renderizar, senão os cards seriam duplicados.
   listaAlunosElemento.textContent = "";
 
-  // (63) Nenhum resultado: mensagem criada com DOM
   if (listaAlunos.length === 0) {
-    const mensagem = document.createElement("p");
-    mensagem.classList.add("mensagem-vazia");
-    mensagem.textContent = "Nenhum aluno encontrado.";
-    listaAlunosElemento.append(mensagem);
+    listaAlunosElemento.append(
+      criarElementoComTexto("p", "Nenhum aluno encontrado.", "mensagem-vazia")
+    );
     return;
   }
 
@@ -293,7 +224,7 @@ function renderizarAlunos(listaAlunos) {
   }
 }
 
-// (68) Atualizar a área de detalhes (textContent nos 3 parágrafos)
+// Atualizar a área de detalhes
 function exibirDetalhesAluno(aluno) {
   const detalheNome = document.querySelector("#detalhe-nome");
   const detalheCurso = document.querySelector("#detalhe-curso");
@@ -307,7 +238,6 @@ function exibirDetalhesAluno(aluno) {
   detalheCurso.textContent = `Curso: ${aluno.curso}`;
   detalheStatus.textContent = `Status: ${aluno.status}`;
 
-  // (69) trocar a classe de status
   detalheStatus.classList.remove("status-ativo", "status-inativo");
   detalheStatus.classList.add(classeDoStatus(aluno.status));
 
@@ -321,50 +251,23 @@ function limparDetalhesAluno() {
   alunoEmDetalhe = null;
 }
 
-// (57) a (62) Busca por nome + filtro por status, funcionando juntos
+// (69) e (70) Busca por nome + filtro por status, funcionando juntos.
+// Só FILTRA o que aparece na tela: não altera o array nem o LocalStorage,
+// por isso não chama salvarDados().
 function aplicarFiltros() {
   const termo = campoBusca === null ? "" : campoBusca.value.toLowerCase().trim();
   const status = filtroStatus === null ? "" : filtroStatus.value;
 
   const filtrados = alunos.filter((aluno) => {
     const nomeConfere = aluno.nome.toLowerCase().includes(termo);
-    // (61) status vazio ("Todos") não filtra nada
     const statusConfere = status === "" || aluno.status === status;
     return nomeConfere && statusConfere;
   });
 
-  // (58) renderizar o resultado
   renderizarAlunos(filtrados);
 }
 
-// (39) a (41) Função separada para o evento click do botão.
-// event é o objeto do evento; event.target é o elemento em que o evento
-// ocorreu (aqui, o próprio botão "Atualizar lista").
-// Nos exercícios 38/39 a função chamava renderizarAlunos(alunos); agora
-// chama aplicarFiltros() para respeitar a busca e o filtro em uso (62).
-function atualizarListaAlunos(event) {
-  console.log(event);
-  console.log("event.target:", event.target);
-  aplicarFiltros();
-}
-
-// (56) evento input: dispara a cada letra digitada
-function aoDigitarBusca() {
-  console.log("Busca:", campoBusca.value);
-  aplicarFiltros();
-}
-
-// (60) evento change: dispara quando o usuário escolhe outra opção
-function aoMudarStatus() {
-  console.log("Status selecionado:", filtroStatus.value);
-  aplicarFiltros();
-}
-
-// (70) a (72) Remover aluno
-// Etapa do exercício 70: cardAluno.remove() retira apenas o ELEMENTO da
-// página. (71) Nesse caso, console.log(alunos) mostraria que o aluno
-// continua no array - o DOM e os dados são coisas separadas.
-// Etapa final (72): remover do ARRAY e renderizar novamente.
+// (40) Remover aluno e persistir a remoção
 function removerAluno(id) {
   const indice = alunos.findIndex((aluno) => aluno.id === id);
 
@@ -374,65 +277,85 @@ function removerAluno(id) {
 
   const [alunoRemovido] = alunos.splice(indice, 1);
   console.log(`Aluno removido: ${alunoRemovido.nome}`);
-  console.log(alunos);
+
+  // (40) sem isto, o aluno reapareceria após F5
+  salvarDados(STORAGE_KEYS.alunos, alunos);
 
   if (alunoEmDetalhe === id) {
     limparDetalhesAluno();
   }
 
   aplicarFiltros();
-  atualizarDashboard(); // (74)
+  atualizarDashboard();
 }
 
-// (53) Mensagem de retorno do formulário (classes CSS, sem estilo inline - 76)
-function exibirMensagemFormulario(texto, tipo) {
-  const area = document.querySelector("#mensagem-form");
+// (42) a (44) Alterar o status de um aluno e persistir
+function alterarStatusAluno(id, novoStatus) {
+  const aluno = alunos.find((item) => item.id === id);
 
-  if (area === null) {
+  if (!aluno) {
     return;
   }
 
-  area.textContent = "";
+  aluno.status = novoStatus;
+  salvarDados(STORAGE_KEYS.alunos, alunos);
 
-  const mensagem = document.createElement("p");
-  mensagem.textContent = texto;
-  mensagem.classList.add(tipo === "erro" ? "mensagem-erro" : "mensagem-sucesso");
-  area.append(mensagem);
+  // (44) aplicarFiltros() redesenha a lista respeitando a busca e o filtro
+  // em uso (renderizarAlunos(alunos) ignoraria o filtro).
+  aplicarFiltros();
+  atualizarDashboard();
+
+  if (alunoEmDetalhe === id) {
+    exibirDetalhesAluno(aluno);
+  }
 }
 
-// (44) a (53) Cadastro de aluno
-// Fluxo: submit -> preventDefault -> captura -> objeto -> push
-//        -> renderizarAlunos -> atualizarDashboard
-function cadastrarAluno(event) {
-  // (45) Sem preventDefault(), o navegador enviaria o formulário e
-  // recarregaria a página, apagando os dados que estão só na memória.
-  event.preventDefault();
-  console.log("Formulário enviado.");
+// (48) Restaurar os alunos iniciais e gravar de novo no LocalStorage.
+// Também é usada para corrigir dados inválidos (exercício 55).
+function restaurarAlunos() {
+  alunos = [...alunosIniciais];
+  salvarDados(STORAGE_KEYS.alunos, alunos);
 
-  // (46) e (47) Capturar os campos
+  if (campoBusca !== null) {
+    campoBusca.value = "";
+  }
+  if (filtroStatus !== null) {
+    filtroStatus.value = "";
+  }
+
+  limparDetalhesAluno();
+  renderizarAlunos(alunos);
+  atualizarDashboard();
+}
+
+// (37), (38) e (84) Cadastro de aluno
+// Fluxo: submit -> preventDefault -> objeto -> push -> salvarDados
+//        -> LocalStorage -> renderizarAlunos -> dashboard
+function cadastrarAluno(event) {
+  event.preventDefault();
+
   const nome = document.querySelector("#nome").value.trim();
   const email = document.querySelector("#email").value.trim();
   const curso = document.querySelector("#curso").value;
   const status = document.querySelector("#status").value;
-  console.log("Nome digitado:", nome);
 
   if (nome === "" || email === "" || curso === "") {
     exibirMensagemFormulario("Preencha nome, e-mail e curso.", "erro");
     return;
   }
 
-  // (48) e (49) Objeto novoAluno (forma reduzida: nome, email, curso, status)
   const novoAluno = {
-    id: gerarProximoId(alunos),
+    id: gerarNovoId(alunos),
     nome,
     email,
     curso,
     status
   };
 
-  // (50) Adicionar ao array
   alunos.push(novoAluno);
-  console.log(alunos);
+
+  // (37) sem esta linha o aluno sumiria após F5 (exercício 81)
+  salvarDados(STORAGE_KEYS.alunos, alunos);
 
   // Limpa busca e filtro para o novo aluno aparecer na lista
   if (campoBusca !== null) {
@@ -442,13 +365,8 @@ function cadastrarAluno(event) {
     filtroStatus.value = "";
   }
 
-  // (51) Atualizar a lista após o cadastro
   renderizarAlunos(alunos);
-
-  // (73) Atualizar o Dashboard
   atualizarDashboard();
-
-  // (52) Limpar o formulário
   formularioAluno.reset();
 
   exibirMensagemFormulario(`Aluno ${nome} cadastrado com sucesso.`, "sucesso");
@@ -456,7 +374,7 @@ function cadastrarAluno(event) {
 
 
 // ------------------------------------------------------------
-// CURSOS, MATRÍCULAS E USUÁRIOS
+// CURSOS
 // ------------------------------------------------------------
 
 // Cria um card genérico: título + linhas de texto + status
@@ -496,7 +414,6 @@ function renderizarLista(seletor, lista, criarCardDoItem, mensagemVazia) {
   });
 }
 
-// (34) Cursos
 function renderizarCursos(listaCursos) {
   renderizarLista("#lista-cursos", listaCursos, (curso) => {
     const status = curso.ativo ? "ativo" : "inativo";
@@ -504,7 +421,45 @@ function renderizarCursos(listaCursos) {
   }, "Nenhum curso encontrado.");
 }
 
-// (35) Matrículas: número, aluno, curso e status
+// (56) Cadastro de curso persistido
+function cadastrarCurso(event) {
+  event.preventDefault();
+
+  const nome = document.querySelector("#nome").value.trim();
+  const sigla = document.querySelector("#codigo").value.trim().toUpperCase();
+  const duracao = Number(document.querySelector("#duracao").value);
+  const descricao = document.querySelector("#descricao").value.trim();
+
+  if (nome === "" || sigla === "") {
+    exibirMensagemFormulario("Preencha o nome e o código do curso.", "erro");
+    return;
+  }
+
+  if (cursos.some((curso) => curso.sigla === sigla)) {
+    exibirMensagemFormulario(`Já existe um curso com o código ${sigla}.`, "erro");
+    return;
+  }
+
+  cursos.push({
+    id: gerarNovoId(cursos),
+    sigla,
+    nome,
+    ativo: true,
+    duracao,
+    descricao
+  });
+
+  salvarDados(STORAGE_KEYS.cursos, cursos);
+
+  formularioCurso.reset();
+  exibirMensagemFormulario(`Curso ${nome} cadastrado com sucesso.`, "sucesso");
+}
+
+
+// ------------------------------------------------------------
+// MATRÍCULAS
+// ------------------------------------------------------------
+
 function renderizarMatriculas(listaMatriculas) {
   renderizarLista("#lista-matriculas", listaMatriculas, (matricula) => {
     return criarCard(
@@ -515,80 +470,153 @@ function renderizarMatriculas(listaMatriculas) {
   }, "Nenhuma matrícula encontrada.");
 }
 
-// (36) Usuários: nome, perfil e status
+// Preenche o select de alunos do formulário de matrícula com os alunos
+// salvos (assim, alunos cadastrados por você também aparecem).
+function preencherSelectAlunos() {
+  const select = document.querySelector("#form-matricula #aluno");
+
+  if (select === null) {
+    return;
+  }
+
+  // mantém só a primeira opção ("Selecione") e recria as demais
+  select.length = 1;
+
+  for (const aluno of alunos) {
+    const opcao = document.createElement("option");
+    opcao.value = aluno.id;
+    opcao.textContent = aluno.nome;
+    select.append(opcao);
+  }
+}
+
+// Gera o próximo número de matrícula: maior número atual + 1 (string)
+function gerarNumeroMatricula() {
+  const numeros = matriculas.map((matricula) => Number(matricula.numero));
+  return String(Math.max(2026000, ...numeros) + 1);
+}
+
+// (57) Cadastro de matrícula persistido
+function cadastrarMatricula(event) {
+  event.preventDefault();
+
+  const idAluno = Number(document.querySelector("#aluno").value);
+  const curso = document.querySelector("#curso").value;
+  const aluno = alunos.find((item) => item.id === idAluno);
+
+  if (!aluno || curso === "") {
+    exibirMensagemFormulario("Selecione o aluno e o curso.", "erro");
+    return;
+  }
+
+  const numero = gerarNumeroMatricula();
+
+  matriculas.push({
+    numero,
+    aluno: aluno.nome,
+    curso,
+    status: "ativa"
+  });
+
+  salvarDados(STORAGE_KEYS.matriculas, matriculas);
+
+  formularioMatricula.reset();
+  exibirMensagemFormulario(`Matrícula ${numero} cadastrada com sucesso.`, "sucesso");
+}
+
+
+// ------------------------------------------------------------
+// USUÁRIOS
+// ------------------------------------------------------------
+
 function renderizarUsuarios(listaUsuarios) {
   renderizarLista("#lista-usuarios", listaUsuarios, (usuario) => {
     return criarCard(usuario.nome, [`Perfil: ${usuario.perfil}`], usuario.status);
   }, "Nenhum usuário encontrado.");
 }
 
+// (58), (59) e (60) Cadastro de usuário persistido.
+// A senha é lida do formulário apenas para validar o preenchimento e NÃO
+// entra no objeto: só id, nome, perfil e status vão para o LocalStorage.
+// (O e-mail também não é guardado, pois não faz parte do modelo do usuário.)
+function cadastrarUsuario(event) {
+  event.preventDefault();
 
-// ------------------------------------------------------------
-// DIAGNÓSTICOS (exercícios 78 a 82) - executado apenas no index.html
-// ------------------------------------------------------------
+  const nome = document.querySelector("#nome").value.trim();
+  const perfil = document.querySelector("#perfil").value;
+  const status = document.querySelector("input[name='situacao']:checked").value;
 
-function executarDiagnosticos() {
-  // (78) querySelector() com um id inexistente devolve null.
-  // Usar null.textContent causa: TypeError (Cannot set properties of null).
-  // Verificar: console.log(elemento) e testar if (elemento !== null).
-  const tituloInexistente = document.querySelector("#titulo-inexistente");
-  console.log("Diagnóstico 78:", tituloInexistente);
-
-  try {
-    tituloInexistente.textContent = "Novo título";
-  } catch (erro) {
-    console.log("Erro capturado:", erro.message);
+  if (nome === "" || perfil === "") {
+    exibirMensagemFormulario("Preencha o nome e o perfil.", "erro");
+    return;
   }
 
-  // (79) Sem limpar antes de renderizar, chamar renderizarAlunos(alunos)
-  // duas vezes mostraria cada aluno DUAS vezes na tela.
-  // (80) Sem preventDefault(), o submit recarrega a página.
-  // (81) "clic" não é um evento válido (o correto é "click"): nenhum erro
-  // aparece, mas a função nunca é executada.
+  usuarios.push({
+    id: gerarNovoId(usuarios),
+    nome,
+    perfil,
+    status
+  });
 
-  // (82) querySelector(".card") devolve 1 elemento; para obter todos,
-  // usa-se querySelectorAll(".card").
-  console.log("Diagnóstico 82 - querySelector:", document.querySelector(".card"));
-  console.log("Diagnóstico 82 - querySelectorAll:", document.querySelectorAll(".card").length, "cards");
+  salvarDados(STORAGE_KEYS.usuarios, usuarios);
+
+  formularioUsuario.reset();
+  exibirMensagemFormulario(`Usuário ${nome} cadastrado com sucesso.`, "sucesso");
 }
 
 
 // ------------------------------------------------------------
-// INICIALIZAÇÃO
+// EVENTOS
 // ------------------------------------------------------------
 
+// Clique em "Atualizar lista": redesenha respeitando busca e filtro
+function atualizarListaAlunos() {
+  aplicarFiltros();
+}
+
+function aoDigitarBusca() {
+  aplicarFiltros();
+}
+
+function aoMudarStatus() {
+  aplicarFiltros();
+}
+
 function registrarEventos() {
-  // (38) e (39) clique no botão
   if (botaoAtualizar !== null) {
     botaoAtualizar.addEventListener("click", atualizarListaAlunos);
   }
 
-  // (56) busca
+  // (50) O botão só existe em alunos.html: o if evita erro nas outras páginas
+  if (btnRestaurar !== null) {
+    btnRestaurar.addEventListener("click", restaurarAlunos);
+  }
+
   if (campoBusca !== null) {
     campoBusca.addEventListener("input", aoDigitarBusca);
   }
 
-  // (60) filtro de status
   if (filtroStatus !== null) {
     filtroStatus.addEventListener("change", aoMudarStatus);
   }
 
-  // (53) cadastro de aluno
   if (formularioAluno !== null) {
     formularioAluno.addEventListener("submit", cadastrarAluno);
   }
+
+  if (formularioCurso !== null) {
+    formularioCurso.addEventListener("submit", cadastrarCurso);
+  }
+
+  if (formularioMatricula !== null) {
+    formularioMatricula.addEventListener("submit", cadastrarMatricula);
+  }
+
+  if (formularioUsuario !== null) {
+    formularioUsuario.addEventListener("submit", cadastrarUsuario);
+  }
 }
 
-explorarDocumento();
-
-if (document.querySelector("#dashboard") !== null) {
-  explorarCardsDoDashboard();
-  executarDiagnosticos();
-}
-
-atualizarDashboard();
-renderizarAlunos(alunos);
-renderizarCursos(cursosCadastrados);
-renderizarMatriculas(matriculas);
-renderizarUsuarios(usuarios);
+// (67) Execução ao carregar a página
 registrarEventos();
+inicializarAplicacao();
